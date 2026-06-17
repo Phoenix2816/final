@@ -9,6 +9,7 @@ const fs = require("fs");
 const app = express();
 const { v4: uuidv4 } = require("uuid");
 const emailjs = require("@emailjs/nodejs");
+
 const authMiddleware = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;

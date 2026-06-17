@@ -1,49 +1,31 @@
-import React, {
-    useState,
-    useContext,
-    useEffect
-} from "react";
-
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import User from "./User";
 import { UserContext } from "./UserContext";
 import UserAction from "./UserAction";
 
 const UserList = () => {
 
-    const { users, setUsers } =
-        useContext(UserContext);
-
-    const [selectedUsers, setSelectedUsers] =
-        useState([]);
-
+    const { users, setUsers } = useContext(UserContext);
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const [sortConfig, setSortConfig] =
         useState({
             key: "last_login_time",
             direction: "desc"
         });
 
-    const refreshUsers = async () => {
+    const refreshUsers = useCallback(async () => {
         try {
-
-            const response =
-                await fetch(
-                    `${process.env.REACT_APP_API_URL}/users`
-                );
-
-            const data =
-                await response.json();
-
-            setUsers(data);
-
-        } catch (error) {
-
-            console.error(
-                "Failed to refresh users:",
-                error
+            const response = await fetch(
+                `${process.env.REACT_APP_API_URL}/users`
             );
 
+            const data = await response.json();
+
+            setUsers(data);
+        } catch (error) {
+            console.error("Failed to refresh users:", error);
         }
-    };
+    }, [setUsers]);
 
     useEffect(() => {
 
@@ -67,7 +49,7 @@ const UserList = () => {
 
         };
 
-    }, []);
+    }, [refreshUsers]);
 
     const select = () => {
 
