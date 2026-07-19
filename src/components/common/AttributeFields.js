@@ -1,0 +1,253 @@
+import React, { useCallback } from "react";
+import { Form } from "react-bootstrap";
+import { useDropzone } from "react-dropzone";
+import MDEditor from "@uiw/react-md-editor";
+import ReactMarkdown from "react-markdown";
+import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+import api, { API_URL } from "../../api/client";
+import toast from "react-hot-toast";
+
+// Resolve a possibly-relative upload path (e.g. "/uploads/x.png") to an
+// absolute URL so the browser can load it from the API server.
+export function resolveImageUrl(value) {
+  if (!value || typeof value !== "string") return value;
+  if (/^(https?:|data:)/i.test(value)) return value;
+  return `${API_URL}${value.startsWith("/") ? "" : "/"}${value}`;
+}
+
+export function AttributeValueInput({ type, value, onChange, options = [], readOnly, missing }) {
+  const className = missing ? "is-invalid missing-field" : "";
+
+  if (readOnly) {
+    return <AttributeValueDisplay type={type} value={value} missing={missing} />;
+  }
+
+  switch (type) {
+    case "boolean":
+      return (
+        <Form.Check
+          type="switch"
+          checked={Boolean(value)}
+          onChange={(e) => onChange(e.target.checked)}
+        />
+      );
+    case "number":
+      return (
+        <Form.Control
+          type="number"
+          className={className}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+        />
+      );
+    case "date":
+      return (
+        <Form.Control
+          type="date"
+          className={className}
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
+    case "period":
+      return (
+        <div className="d-flex gap-2">
+          <Form.Control
+            type="date"
+            className={className}
+            value={value?.from || ""}
+            onChange={(e) => onChange({ ...(value || {}), from: e.target.value })}
+          />
+          <Form.Control
+            type="date"
+            className={className}
+            value={value?.to || ""}
+            onChange={(e) => onChange({ ...(value || {}), to: e.target.value })}
+          />
+        </div>
+      );
+    case "dropdown":
+      return (
+        <Form.Select
+          className={className}
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">—</option>
+          {(options || []).map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </Form.Select>
+      );
+    case "markdown":
+      return (
+        <div data-color-mode="auto" className={missing ? "missing-md" : ""}>
+          <MDEditor value={value || ""} onChange={(v) => onChange(v || "")} height={160} />
+        </div>
+      );
+    case "image":
+      return <ImageUpload value={value} onChange={onChange} missing={missing} />;
+    default:
+      return (
+        <Form.Control
+          className={className}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
+  }
+}
+
+export function AttributeValueDisplay({ type, value, missing }) {
+  if (missing || value == null || value === "") {
+    return <span className="text-danger fw-semibold">Missing</span>;
+  }
+  if (type === "boolean") return <span>{value ? "Yes" : "No"}</span>;
+  if (type === "markdown") return <ReactMarkdown>{String(value)}</ReactMarkdown>;
+  if (type === "period") return <span>{value?.from || "?"} → {value?.to || "?"}</span>;
+  if (type === "image") {
+    return value ? (
+      <img src={resolveImageUrl(value)} alt="" className="attr-image-thumb" />
+    ) : (
+      <span className="text-danger">Missing</span>
+    );
+  }
+  return <span>{String(value)}</span>;
+}
+
+const CLOUDINARY_CLOUD = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+
+async function uploadToCloudinary(file) {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("upload_preset", CLOUDINARY_PRESET);
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+    { method: "POST", body }
+  );
+  if (!res.ok) throw new Error("Cloudinary upload failed");
+  const json = await res.json();
+  return json.secure_url;
+}
+
+function ImageUpload({ value, onChange, missing }) {
+  const onDrop = useCallback(
+    async (files) => {
+      const file = files[0];
+      if (!file) return;
+      const useCloud = Boolean(CLOUDINARY_CLOUD && CLOUDINARY_PRESET);
+      try {
+        if (useCloud) {
+          try {
+            const url = await uploadToCloudinary(file);
+            onChange(url);
+            return;
+          } catch {
+            // Fall back to the server proxy if direct Cloudinary upload fails.
+          }
+        }
+        const form = new FormData();
+        form.append("file", file);
+        const { data } = await api.post("/upload", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        if (!data || !data.url) {
+          throw new Error(data?.error || "Upload failed");
+        }
+        onChange(data.url);
+        if (data.warning) toast(data.warning, { icon: "⚠️" });
+      } catch (err) {
+        toast.error(err.response?.data?.error || err.message || "Upload failed");
+      }
+    },
+    [onChange]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
+
+  return (
+    <div>
+      {value && <img src={resolveImageUrl(value)} alt="" className="attr-image-preview mb-2" />}
+      <div
+        {...getRootProps()}
+        className={`dropzone ${isDragActive ? "active" : ""} ${missing ? "missing-field" : ""}`}
+      >
+        <input {...getInputProps()} />
+        <i className="bi bi-cloud-arrow-up me-2" />
+        Drop image or click to upload
+      </div>
+      <Form.Control
+        className="mt-2"
+        placeholder="Or paste image URL"
+        value={typeof value === "string" && !value.startsWith("data:") ? value : ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+}
+
+export function TagInput({ value = [], onChange, loadOptions, placeholder = "Tags" }) {
+  const [options, setOptions] = React.useState([]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!loadOptions) return;
+      const opts = await loadOptions("");
+      if (!cancelled) setOptions((opts || []).map((t) => ({ value: t, label: t })));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadOptions]);
+
+  return (
+    <CreatableSelect
+      isMulti
+      placeholder={placeholder}
+      value={(value || []).map((t) => ({ value: t, label: t }))}
+      options={options}
+      onChange={(selected) => onChange((selected || []).map((s) => s.value))}
+      onInputChange={(input, meta) => {
+        if (meta.action === "input-change" && loadOptions) {
+          loadOptions(input).then((opts) =>
+            setOptions((opts || []).map((t) => ({ value: t, label: t })))
+          );
+        }
+        return input;
+      }}
+      classNamePrefix="tf-select"
+    />
+  );
+}
+
+export function AttributePicker({ attributes, value, onChange, isMulti = true }) {
+  const options = (attributes || []).map((a) => ({
+    value: a.id,
+    label: `${a.category} / ${a.name}`,
+  }));
+  return (
+    <Select
+      isMulti={isMulti}
+      options={options}
+      value={
+        isMulti
+          ? options.filter((o) => (value || []).includes(o.value))
+          : options.find((o) => o.value === value) || null
+      }
+      onChange={(selected) => {
+        if (isMulti) onChange((selected || []).map((s) => s.value));
+        else onChange(selected?.value || null);
+      }}
+      classNamePrefix="tf-select"
+    />
+  );
+}

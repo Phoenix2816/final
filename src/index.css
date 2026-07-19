@@ -1,67 +1,174 @@
-*{
-  box-sizing: border-box;
-
+:root {
+  --tf-bg: #f3f5f8;
+  --tf-surface: #ffffff;
+  --tf-surface-2: #f8fafc;
+  --tf-text: #152033;
+  --tf-muted: #5b6b82;
+  --tf-border: #d9e1ec;
+  --tf-accent: #0f6e56;
+  --tf-accent-2: #1a8f6f;
+  --tf-danger: #c23b3b;
+  --tf-shadow: 0 10px 30px rgba(21, 32, 51, 0.06);
+  --tf-radius: 14px;
+  --tf-font: "Segoe UI", "IBM Plex Sans", "Helvetica Neue", sans-serif;
+  --tf-display: "Segoe UI Semibold", "IBM Plex Sans", sans-serif;
 }
 
+[data-bs-theme="dark"] {
+  --tf-bg: #0f141c;
+  --tf-surface: #171e29;
+  --tf-surface-2: #1d2633;
+  --tf-text: #e8eef7;
+  --tf-muted: #9aabbf;
+  --tf-border: #2b3748;
+  --tf-accent: #3dba95;
+  --tf-accent-2: #2f9a7c;
+  --tf-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  display:flex;
-  align-items: center;
-  justify-content: center;
+  font-family: var(--tf-font);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(15, 110, 86, 0.12), transparent 55%),
+    radial-gradient(900px 400px at 100% 0%, rgba(36, 99, 160, 0.1), transparent 50%),
+    var(--tf-bg);
+  color: var(--tf-text);
+}
+
+a {
+  color: var(--tf-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--tf-accent-2);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--tf-display);
+  letter-spacing: -0.02em;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--tf-accent);
+  --bs-btn-border-color: var(--tf-accent);
+  --bs-btn-hover-bg: var(--tf-accent-2);
+  --bs-btn-hover-border-color: var(--tf-accent-2);
+  --bs-btn-active-bg: var(--tf-accent-2);
+  --bs-btn-active-border-color: var(--tf-accent-2);
+}
+
+.app-root {
+  min-height: 100vh;
+  display: flex;
   flex-direction: column;
 }
-table {
-  border-collapse: collapse;
-  width: 80vw;
-  max-width: 800px;
-  margin: 20px;
-  overflow: auto;
-}
-header{
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 15px 30px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
 
-}
-th, td {
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-input[type="checkbox"] {
-  transform: scale(1.5);
-  margin-left: calc(50% - 12px);
-  cursor: pointer;
+.app-main {
+  flex: 1;
 }
 
-button{
-  cursor: pointer;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  background: none;
-  color: blue;
-  border: 1px solid blue;
-  border-radius: 15px;
-
-}
-header button{
-  font-size: 20px;
-  border-radius: 12px;
+.page-shell {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.page-header h1,
+.home-hero h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--tf-accent);
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.lead-muted,
+.text-muted {
+  color: var(--tf-muted) !important;
+}
+
+/* ===== Global Hover Effects ===== */
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* ===== Mobile Improvements ===== */
+@media (max-width: 768px) {
+  .page-shell {
+    width: 100%;
+    padding: 1rem 0.75rem 2rem;
+  }
+  
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .form-control,
+  .form-select {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+  
+  .table-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  
+  .data-table-wrap .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .enterprise-tabs .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-shell {
+    padding: 0.75rem 0.5rem 1.5rem;
+  }
+  
+  .stat-card {
+    min-width: 100%;
+  }
+  
+  .position-card-grid {
+    grid-template-columns: 1fr;
+  }
 }

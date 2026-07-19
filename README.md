@@ -1,70 +1,266 @@
-# Getting Started with Create React App
+# TalentFlow
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+TalentFlow is a full-stack recruitment and CV management platform. It connects recruiters, candidates, and administrators through a unified interface for managing job positions, candidate profiles, attributes, and real-time discussions.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Authentication & Authorization**
+  - Email / password login and registration
+  - Social login via Google and GitHub (OAuth 2.0)
+  - Role-based access control: `admin`, `recruiter`, `candidate`
+  - JWT-based session management with auto-refresh
 
-### `npm start`
+- **Position Management**
+  - Create, edit, duplicate, and publish job positions
+  - Filter and sort by level, visibility, and text search
+  - Visibility controls: public, private, hidden, archived, blocked
+  - Attach required attributes/skills to positions
 
-Runs the app in the development mode.\
-Open [http://localhost:5000](http://localhost:5000) to view it in your browser.
+- **CV / Résumé Management**
+  - Candidates build and publish CVs with markdown support
+  - Recruiters and admins can view, search, and like CVs
+  - Real-time discussion threads on positions and CVs
+  - PDF export and QR code generation
+  - Portfolio/project timeline with markdown descriptions
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Attribute Library**
+  - Centralized catalog of technologies, skills, and professional attributes
+  - Category-based organization (frontend, backend, databases, DevOps, etc.)
+  - Attribute usage tracking across positions and CVs
 
-### `npm test`
+- **User Management (Admin)**
+  - User list with role assignment and status management
+  - Block / unblock users
+  - Last-login tracking and profile oversight
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Search & Discovery**
+  - Global search across positions and CVs
+  - Technology tag cloud on the home dashboard
+  - Debounced search with URL-based routing
 
-### `npm run build`
+- **Real-Time Features**
+  - Socket.io-powered discussion panels
+  - Live messaging on positions and CVs
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **UI / UX**
+  - Responsive layout with collapsible mobile navigation
+  - Dark and light theme toggle
+  - Internationalization: English and Russian
+  - Skeleton loading states and toast notifications
+  - Accessible focus styles and keyboard navigation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| React 19 | UI framework |
+| React Router 7 | Client-side routing |
+| React Bootstrap 2 | Component library |
+| Bootstrap 5 | Layout and styling |
+| i18next / react-i18next | Internationalization |
+| Axios | HTTP client |
+| Socket.io Client | Real-time communication |
+| React Markdown | Rich text rendering |
+| React Select | Advanced select inputs |
+| React Hot Toast | Notifications |
+| date-fns | Date formatting |
+| jspdf / qrcode | PDF and QR generation |
 
-### `npm run eject`
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| Express 5 | REST API server |
+| Sequelize 6 | ORM |
+| SQLite / MySQL | Database (SQLite for local dev, MySQL for production) |
+| Socket.io | WebSocket server |
+| Passport.js | OAuth authentication |
+| JWT | Token-based auth |
+| Multer + Cloudinary | Image uploads |
+| bcrypt | Password hashing |
+| express-session | Session management |
+| EmailJS | Email verification |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Prerequisites
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Node.js >= 18
+- npm >= 9
+- MySQL (optional; falls back to SQLite for local development)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Installation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+# Clone the repository
+git clone <repository-url>
+cd testing
 
-## Learn More
+# Install frontend dependencies
+npm install
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Install server dependencies
+cd server
+npm install
+cd ..
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Configuration
 
-### Code Splitting
+Create a `.env` file in the root and a `server/.env` file. See `.env.example` for all available variables.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Root `.env`
+```env
+REACT_APP_API_URL=http://localhost:5000
+REACT_APP_CLIENT_URL=http://localhost:3000
+```
 
-### Analyzing the Bundle Size
+### `server/.env`
+```env
+PORT=5000
+JWT_SECRET=your-jwt-secret
+CLIENT_URL=http://localhost:3000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Database (optional for local dev)
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=password
+DB_NAME=cvdb
 
-### Making a Progressive Web App
+# OAuth (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:5000/auth/google/callback
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_REDIRECT_URI=http://localhost:5000/auth/github/callback
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# Email (optional)
+EMAILJS_SERVICE_ID=
+EMAILJS_TEMPLATE_ID=
+EMAILJS_PUBLIC_KEY=
+EMAILJS_PRIVATE_KEY=
+```
 
-### Advanced Configuration
+> **Note:** If no database credentials are provided, the server automatically falls back to an in-memory SQLite database, which is ideal for local development and testing.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Running the Application
 
-### Deployment
+```bash
+# Start the backend server (from the root)
+npm run server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+# In a separate terminal, start the frontend dev server
+npm start
+```
 
-### `npm run build` fails to minify
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start React dev server (port 3000) |
+| `npm run server` | Start Express server (port 5000) |
+| `npm run server:dev` | Start Express server with nodemon |
+| `npm run server:seed` | Seed the database with demo data |
+| `npm run build` | Build the frontend for production |
+| `npm test` | Run tests |
+
+## Project Structure
+
+```
+testing/
+├── src/
+│   ├── api/
+│   │   └── client.js              # Axios instance with auth interceptor
+│   ├── components/
+│   │   ├── common/                # Reusable UI components
+│   │   │   ├── DataTable.js
+│   │   │   ├── TechTag.js
+│   │   │   ├── TechTagInput.js
+│   │   │   ├── ProjectCard.js
+│   │   │   ├── HeartLike.js
+│   │   │   ├── ConfirmDialog.js
+│   │   │   ├── EmptyState.js
+│   │   │   └── LoadingSkeleton.js
+│   │   └── discussions/
+│   │       └── DiscussionPanel.js
+│   ├── components/layout/
+│   │   └── AppNavbar.js           # Main navigation bar
+│   ├── contexts/
+│   │   ├── AuthContext.js         # Authentication state
+│   │   └── PreferencesContext.js  # Theme and language preferences
+│   ├── hooks/
+│   │   └── useAutoSave.js         # Debounced auto-save hook
+│   ├── i18n/
+│   │   ├── index.js
+│   │   ├── en.json
+│   │   └── ru.json
+│   ├── pages/
+│   │   ├── HomePage.js            # Dashboard with stats and tag cloud
+│   │   ├── PositionsPage.js       # Position list with filters
+│   │   ├── PositionDetailPage.js  # Position details and discussions
+│   │   ├── PositionEditPage.js    # Create / edit position
+│   │   ├── UsersPage.js           # Admin user management
+│   │   ├── CVPage.js              # Candidate résumé view
+│   │   ├── ProfilePage.js         # User profile editor
+│   │   ├── AttributesPage.js      # Attribute library
+│   │   ├── LoginPage.js
+│   │   ├── RegisterPage.js
+│   │   ├── OAuthCallbackPage.js
+│   │   └── SearchResultsPage.js
+│   ├── App.css                    # Global component styles
+│   ├── App.js                     # Route definitions and layout
+│   ├── index.css                  # CSS variables and base styles
+│   └── index.js                   # React entry point
+├── server/
+│   ├── config/
+│   │   └── database.js            # Sequelize configuration
+│   ├── middleware/
+│   │   └── auth.js                # JWT and role middleware
+│   ├── models/                    # Sequelize models
+│   │   ├── index.js
+│   │   ├── User.js
+│   │   ├── Position.js
+│   │   ├── CV.js
+│   │   ├── Attribute.js
+│   │   ├── Project.js
+│   │   ├── DiscussionMessage.js
+│   │   ├── CVLike.js
+│   │   ├── UserAttribute.js
+│   │   └── RecentAttribute.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── users.js
+│   │   ├── positions.js
+│   │   ├── cvs.js
+│   │   ├── attributes.js
+│   │   ├── projects.js
+│   │   ├── stats.js
+│   │   └── upload.js
+│   ├── services/
+│   │   ├── accessRules.js
+│   │   ├── cvGenerator.js
+│   │   └── queryHelpers.js
+│   ├── socket.js                  # Socket.io setup
+│   ├── seed.js                    # Database seeding
+│   ├── seedMock.js                # Mock data seeding
+│   ├── server.js                  # Express app entry point
+│   └── .env
+├── .env.example
+├── package.json
+└── README.md
+```
+
+## Roles & Permissions
+
+| Role | Permissions |
+|------|-------------|
+| **admin** | Full access: manage users, positions, attributes, view all CVs, edit any profile/CV |
+| **recruiter** | Manage positions, view CVs, like CVs, create/edit own profile |
+| **candidate** | Manage own profile, create and publish CVs |
+
+## License
+
+ISC
