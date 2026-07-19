@@ -221,6 +221,7 @@
     "neverLoggedIn": "Never logged in",
     "today": "Today",
     "yesterday": "Yesterday",
+    "date": "Date",
     "searchPlaceholder": "Search by name or email...",
     "filterRole": "Role",
     "filterStatus": "Status",

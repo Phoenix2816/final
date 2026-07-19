@@ -204,6 +204,7 @@
     "neverLoggedIn": "Никогда не входил",
     "today": "Сегодня",
     "yesterday": "Вчера",
+    "date": "Дата",
     "searchPlaceholder": "Поиск по имени или email...",
     "filterRole": "Роль",
     "filterStatus": "Статус",
