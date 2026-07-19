@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import api from "../../api/client";
 import { TagPill } from "./TechTag";
 
 // Highlight the matched portion of a suggestion against the current query.
@@ -92,11 +91,11 @@ export default function TechTagInput({
   // Derived values (computed unconditionally to respect Rules of Hooks).
   const q = query.trim();
   const exactMatch = q && (library?.flat || []).some((t) => t.toLowerCase() === q.toLowerCase());
-  const selectedSet = new Set(value.map((v) => v.toLowerCase()));
+  const selectedSet = useMemo(() => new Set(value.map((v) => v.toLowerCase())), [value]);
   const canCreate = q.length > 0 && !selectedSet.has(q.toLowerCase()) && !exactMatch;
-  const recent = library?.recent || [];
-  const popular = library?.popular || [];
-  const categories = library?.categories || {};
+  const recent = useMemo(() => library?.recent || [], [library]);
+  const popular = useMemo(() => library?.popular || [], [library]);
+  const categories = useMemo(() => library?.categories || {}, [library]);
 
   const filteredCategories = useMemo(() => {
     if (!q) return {};
