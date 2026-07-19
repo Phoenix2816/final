@@ -2854,16 +2854,26 @@
 
 .user-drawer .permission-list {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .user-drawer .permission-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tf-accent) 10%, var(--tf-surface));
   color: var(--tf-text);
+  border: 1px solid color-mix(in srgb, var(--tf-accent) 25%, var(--tf-border));
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.user-drawer .permission-item i {
+  color: var(--tf-accent);
+  font-size: 0.85rem;
 }
 
 .user-avatar-lg {
