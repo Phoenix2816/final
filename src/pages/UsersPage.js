@@ -449,7 +449,7 @@ export default function UsersPage() {
                    {drawerPermissions.map((perm) => (
                      <span key={perm} className="permission-item">
                        <i className="bi bi-check2-circle" />
-                       {t(perm)}
+                       {t(`users.${perm}`)}
                      </span>
                    ))}
                  </div>
