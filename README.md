@@ -129,10 +129,10 @@ DB_NAME=cvdb
 # OAuth (optional)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=http://localhost:5000/auth/google/callback
+GOOGLE_REDIRECT_URI=https://final-dhkq.onrender.comauth/google/callback
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
-GITHUB_REDIRECT_URI=http://localhost:5000/auth/github/callback
+GITHUB_REDIRECT_URI=https://final-dhkq.onrender.comauth/github/callback
 
 # Email (optional)
 EMAILJS_SERVICE_ID=

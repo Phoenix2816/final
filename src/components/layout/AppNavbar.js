@@ -191,6 +191,12 @@ export default function AppNavbar() {
             <span className="brand-text">{t("appName")}</span>
           </Navbar.Brand>
 
+          <div className="header-nav-row d-none d-xl-flex">
+            <Container fluid className="px-3 px-lg-4">
+              {headerNavLinks}
+            </Container>
+          </div>
+          
           <div className="nav-search-header">{searchForm}</div>
 
           <div className="nav-tools-fixed d-flex align-items-center gap-2">
@@ -208,11 +214,6 @@ export default function AppNavbar() {
         </Container>
       </Navbar>
 
-      <div className="header-nav-row d-none d-xl-flex">
-        <Container fluid className="px-3 px-lg-4">
-          {headerNavLinks}
-        </Container>
-      </div>
 
       <div className={`mobile-nav-panel${mobileNavOpen ? " show" : ""} d-xl-none`}>
         <Container fluid className="px-3 px-lg-4">

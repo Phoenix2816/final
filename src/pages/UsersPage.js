@@ -235,7 +235,7 @@ export default function UsersPage() {
           <h1 className="mb-1">{t("users.title")}</h1>
           <p className="text-muted mb-0 small">{t("users.subtitle")}</p>
         </div>
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-wrap gap-2">
           <div className="stat-card stat-card-total">
             <div className="stat-card-icon"><i className="bi bi-people" /></div>
             <div>

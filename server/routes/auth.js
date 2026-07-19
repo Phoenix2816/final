@@ -28,7 +28,7 @@ function configurePassport() {
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
           callbackURL:
             process.env.GOOGLE_REDIRECT_URI ||
-            "http://localhost:5000/api/auth/google/callback",
+            "https://final-dhkq.onrender.com/api/auth/google/callback",
         },
         async (_accessToken, _refreshToken, profile, done) => {
           try {
@@ -71,7 +71,7 @@ function configurePassport() {
           clientSecret: process.env.GITHUB_CLIENT_SECRET,
           callbackURL:
             process.env.GITHUB_REDIRECT_URI ||
-            "http://localhost:5000/api/auth/github/callback",
+            "https://final-dhkq.onrender.com/api/auth/github/callback",
           scope: ["user:email"],
         },
         async (_accessToken, _refreshToken, profile, done) => {
