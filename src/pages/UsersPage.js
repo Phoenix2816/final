@@ -443,17 +443,17 @@ export default function UsersPage() {
                 </div>
               </div>
 
-              <div className="mt-4">
-                <h6 className="fw-bold mb-3">{t("users.permissions")}</h6>
-                <div className="permission-list">
-                  {drawerPermissions.map((perm) => (
-                    <div key={perm} className="permission-item">
-                      <i className="bi bi-check2-circle text-success me-2" />
-                      {t(perm)}
-                    </div>
-                  ))}
-                </div>
-              </div>
+               <div className="mt-4">
+                 <h6 className="fw-bold mb-3">{t("users.permissions")}</h6>
+                 <div className="permission-list">
+                   {drawerPermissions.map((perm) => (
+                     <span key={perm} className="permission-item">
+                       <i className="bi bi-check2-circle" />
+                       {t(perm)}
+                     </span>
+                   ))}
+                 </div>
+               </div>
             </div>
           )}
         </Offcanvas.Body>
