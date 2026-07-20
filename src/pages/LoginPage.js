@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Form } from "react-bootstrap";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Button, Form, Alert } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import api, { API_URL } from "../api/client";
@@ -10,14 +10,35 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const { login, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("candidate@cv.local");
   const [password, setPassword] = useState("password123");
   const [loading, setLoading] = useState(false);
   const [providers, setProviders] = useState({ google: false, github: false });
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertVariant, setAlertVariant] = useState("info");
 
   useEffect(() => {
     if (user) navigate("/");
   }, [user, navigate]);
+
+  useEffect(() => {
+    const info = searchParams.get("info");
+    const error = searchParams.get("error");
+    if (info === "confirmed") {
+      setAlertMessage(t("auth.confirmEmailSuccess"));
+      setAlertVariant("success");
+    } else if (info === "already_confirmed") {
+      setAlertMessage(t("auth.confirmEmailSuccess"));
+      setAlertVariant("success");
+    } else if (error === "token_expired") {
+      setAlertMessage(t("auth.confirmEmailExpired"));
+      setAlertVariant("danger");
+    } else if (error === "invalid_token") {
+      setAlertMessage(t("auth.confirmEmailInvalid"));
+      setAlertVariant("danger");
+    }
+  }, [searchParams, navigate, t]);
 
   useEffect(() => {
     api.get("/auth/providers").then((r) => setProviders(r.data)).catch(() => {});
@@ -31,7 +52,9 @@ export default function LoginPage() {
       toast.success("Welcome");
       navigate("/");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Login failed");
+      const errorKey = err.response?.data?.error;
+      const errorMessage = errorKey ? t(`auth.${errorKey}`) || errorKey : "Login failed";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -45,6 +68,7 @@ export default function LoginPage() {
           <span className="brand-text">{t("appName")}</span>
         </div>
         <h1>{t("auth.loginTitle")}</h1>
+        {alertMessage && <Alert variant={alertVariant}>{alertMessage}</Alert>}
         <p className="text-muted small">{t("auth.demoHint")}</p>
         <Form onSubmit={onSubmit}>
           <Form.Group className="mb-3">

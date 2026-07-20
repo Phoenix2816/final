@@ -129,16 +129,33 @@ router.post("/register", async (req, res) => {
     if (existing) return res.status(409).json({ error: "Email already exists" });
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const user = await User.create({
       email,
       passwordHash,
       firstName: firstName || "",
       lastName: lastName || "",
       roles: ["candidate"],
+      emailConfirmed: false,
+      emailConfirmToken: token,
+      emailConfirmExpires: expiresAt,
     });
 
-    const token = signToken(user);
-    res.status(201).json({ token, user: user.toSafeJSON() });
+    const confirmLink = `${CLIENT_URL}/auth/confirm-email?token=${token}`;
+    const message = `Hello ${firstName || email},\n\nClick the link below to confirm your email address:\n${confirmLink}\n\nThis link will expire in 24 hours.\n\nIf you didn't create an account, ignore this email.`;
+
+    try {
+      await sendPasswordChangeEmail(email, firstName || email, confirmLink);
+    } catch {
+      console.warn("Confirmation email failed to send");
+    }
+
+    res.status(201).json({
+      message: "Account created. Please check your email to confirm your account.",
+      userId: user.id,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Registration failed" });
@@ -153,6 +170,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     if (user.isBlocked) return res.status(403).json({ error: "User is blocked" });
+    if (!user.emailConfirmed) return res.status(403).json({ error: "emailNotConfirmed" });
 
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
@@ -260,6 +278,38 @@ router.post("/password/confirm", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to confirm password change" });
+  }
+});
+
+router.get("/confirm-email", async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) {
+      return res.redirect(`${CLIENT_URL}/login?error=invalid_token`);
+    }
+
+    const user = await User.findOne({ where: { emailConfirmToken: token } });
+    if (!user) {
+      return res.redirect(`${CLIENT_URL}/login?error=invalid_token`);
+    }
+
+    if (user.emailConfirmed) {
+      return res.redirect(`${CLIENT_URL}/login?info=already_confirmed`);
+    }
+
+    if (user.emailConfirmExpires < new Date()) {
+      return res.redirect(`${CLIENT_URL}/login?error=token_expired`);
+    }
+
+    user.emailConfirmed = true;
+    user.emailConfirmToken = null;
+    user.emailConfirmExpires = null;
+    await user.save();
+
+    res.redirect(`${CLIENT_URL}/login?info=confirmed`);
+  } catch (err) {
+    console.error(err);
+    res.redirect(`${CLIENT_URL}/login?error=confirmation_failed`);
   }
 });
 

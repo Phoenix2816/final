@@ -57,9 +57,8 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (payload) => {
     const { data } = await api.post("/auth/register", payload);
-    persist(data.token, data.user);
-    return data.user;
-  }, [persist]);
+    return data;
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("token");

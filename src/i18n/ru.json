@@ -40,7 +40,12 @@
     "orSocial": "Или продолжить через",
     "noAccount": "Нет аккаунта?",
     "hasAccount": "Уже зарегистрированы?",
-    "demoHint": "Демо: candidate@cv.local / password123"
+    "demoHint": "Демо: candidate@cv.local / password123",
+    "registerSuccess": "Аккаунт создан. Проверьте почту для подтверждения.",
+    "confirmEmailSuccess": "Email подтверждён. Теперь вы можете войти.",
+    "confirmEmailExpired": "Срок действия ссылки истёк. Зарегистрируйтесь заново.",
+    "confirmEmailInvalid": "Неверная ссылка для подтверждения.",
+    "emailNotConfirmed": "Подтвердите email перед входом."
   },
   "common": {
     "search": "Поиск…",

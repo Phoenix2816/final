@@ -85,6 +85,13 @@ async function start() {
       console.warn("PasswordReset.sync(alter) skipped:", err.message);
     }
 
+    try {
+      const { User } = require("./models");
+      await User.sync({ alter: true });
+    } catch (err) {
+      console.warn("User.sync(alter) skipped:", err.message);
+    }
+
     const { User } = require("./models");
     const count = await User.count();
     if (count === 0 || process.env.SEED_ON_START === "true") {

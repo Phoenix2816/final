@@ -21,9 +21,9 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(form);
-      toast.success("Account created");
-      navigate("/");
+      const data = await register(form);
+      toast.success(t("auth.registerSuccess"));
+      navigate("/login");
     } catch (err) {
       toast.error(err.response?.data?.error || "Registration failed");
     } finally {

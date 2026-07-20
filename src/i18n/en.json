@@ -40,7 +40,12 @@
     "orSocial": "Or continue with",
     "noAccount": "No account?",
     "hasAccount": "Already registered?",
-    "demoHint": "Demo: candidate@cv.local / password123"
+    "demoHint": "Demo: candidate@cv.local / password123",
+    "registerSuccess": "Account created. Please check your email to confirm.",
+    "confirmEmailSuccess": "Your email has been confirmed. You can now log in.",
+    "confirmEmailExpired": "Confirmation link expired. Please register again.",
+    "confirmEmailInvalid": "Invalid confirmation link.",
+    "emailNotConfirmed": "Please confirm your email before logging in."
   },
   "common": {
     "search": "Search…",
