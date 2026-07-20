@@ -8,6 +8,7 @@ const CVModel = require("./CV");
 const CVLikeModel = require("./CVLike");
 const DiscussionMessageModel = require("./DiscussionMessage");
 const RecentAttributeModel = require("./RecentAttribute");
+const PasswordResetModel = require("./PasswordReset");
 
 const User = UserModel(sequelize);
 const Attribute = AttributeModel(sequelize);
@@ -18,6 +19,7 @@ const CV = CVModel(sequelize);
 const CVLike = CVLikeModel(sequelize);
 const DiscussionMessage = DiscussionMessageModel(sequelize);
 const RecentAttribute = RecentAttributeModel(sequelize);
+const PasswordReset = PasswordResetModel(sequelize);
 
 User.hasMany(UserAttribute, { foreignKey: "userId", as: "attributes", onDelete: "CASCADE" });
 UserAttribute.belongsTo(User, { foreignKey: "userId" });
@@ -48,8 +50,11 @@ DiscussionMessage.belongsTo(Position, { foreignKey: "positionId" });
 DiscussionMessage.belongsTo(User, { foreignKey: "userId", as: "author" });
 
 User.hasMany(RecentAttribute, { foreignKey: "userId", onDelete: "CASCADE" });
-RecentAttribute.belongsTo(Attribute, { foreignKey: "attributeId", as: "attribute" });
-Attribute.belongsTo(User, { foreignKey: "createdById", as: "creator" });
+RecentAttribute.belongsTo(User, { foreignKey: "userId", as: "attribute" });
+Attribute.hasMany(RecentAttribute, { foreignKey: "createdById", as: "creator" });
+
+User.hasMany(PasswordReset, { foreignKey: "userId", onDelete: "CASCADE" });
+PasswordReset.belongsTo(User, { foreignKey: "userId" });
 
 module.exports = {
   sequelize,
@@ -62,4 +67,5 @@ module.exports = {
   CVLike,
   DiscussionMessage,
   RecentAttribute,
+  PasswordReset,
 };

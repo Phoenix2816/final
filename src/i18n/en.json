@@ -152,7 +152,14 @@
       "availability": "Availability",
       "certificates": "Certificates",
       "other": "Other"
-    }
+    },
+    "changePassword": "Change Password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "requestPasswordChange": "Send confirmation email",
+    "passwordEmailSent": "Confirmation email sent. Please check your inbox.",
+    "passwordChangedSuccess": "Password changed successfully",
+    "passwordChangeFailed": "Password change failed"
   },
   "attributes": {
     "title": "Attribute Library",

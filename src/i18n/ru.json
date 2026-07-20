@@ -135,7 +135,14 @@
       "availability": "Доступность",
       "certificates": "Сертификаты",
       "other": "Другое"
-    }
+    },
+    "changePassword": "Сменить пароль",
+    "newPassword": "Новый пароль",
+    "confirmNewPassword": "Подтвердите новый пароль",
+    "requestPasswordChange": "Отправить письмо для подтверждения",
+    "passwordEmailSent": "Письмо для подтверждения отправлено. Проверьте свою почту.",
+    "passwordChangedSuccess": "Пароль успешно изменён",
+    "passwordChangeFailed": "Не удалось изменить пароль"
   },
   "attributes": {
     "title": "Библиотека атрибутов",

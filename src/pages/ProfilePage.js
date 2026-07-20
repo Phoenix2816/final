@@ -73,6 +73,12 @@ export default function ProfilePage() {
   const [selectedCvs, setSelectedCvs] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [attrDirty, setAttrDirty] = useState([]);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState(null);
 
   const loadProfile = useCallback(async () => {
     const { data } = await api.get(`/users/${profileUserId}/profile`);
@@ -210,6 +216,50 @@ export default function ProfilePage() {
     setAttrDirty((prev) => [...prev.filter((x) => x.attributeId !== attributeId), { attributeId, _delete: true }]);
     markDirty();
   };
+
+  const handlePasswordRequest = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordMessage(null);
+    try {
+      await api.post("/auth/password/request", {
+        currentPassword,
+        newPassword,
+      });
+      setPasswordMessage(t("profile.passwordEmailSent"));
+      toast.success(t("profile.passwordEmailSent"));
+      setShowPasswordModal(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      setPasswordMessage(err.response?.data?.error || t("profile.passwordChangeFailed"));
+      toast.error(err.response?.data?.error || t("profile.passwordChangeFailed"));
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const confirmToken = searchParams.get("confirm-password");
+    if (!confirmToken) return;
+    (async () => {
+      setPasswordLoading(true);
+      setPasswordMessage(null);
+      try {
+        await api.post("/auth/password/confirm", { token: confirmToken });
+        setPasswordMessage(t("profile.passwordChangedSuccess"));
+        toast.success(t("profile.passwordChangedSuccess"));
+        navigate("/profile", { replace: true });
+      } catch (err) {
+        setPasswordMessage(err.response?.data?.error || t("profile.passwordChangeFailed"));
+        toast.error(err.response?.data?.error || t("profile.passwordChangeFailed"));
+        navigate("/profile", { replace: true });
+      } finally {
+        setPasswordLoading(false);
+      }
+    })();
+  }, [searchParams, navigate, t]);
 
   const addAttr = async (attr) => {
     setShowAddAttr(false);
@@ -419,6 +469,12 @@ export default function ProfilePage() {
             <Button size="sm" variant="outline-primary" onClick={() => saveNow().catch(() => {})}>
               {t("common.save")}
             </Button>
+            {authUser?.id === profileUserId && (
+              <Button size="sm" variant="outline-secondary" onClick={() => setShowPasswordModal(true)}>
+                <i className="bi bi-key me-1" />
+                {t("profile.changePassword")}
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -909,6 +965,59 @@ export default function ProfilePage() {
           setCvTotal(data.pagination.total);
         }}
       />
+
+      <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)} size="sm">
+        <Modal.Header closeButton>
+          <Modal.Title>{t("profile.changePassword")}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {passwordMessage && (
+            <div className={`alert ${passwordMessage.includes("success") || passwordMessage.includes("sent") ? "alert-success" : "alert-danger"} mb-3`}>
+              {passwordMessage}
+            </div>
+          )}
+          <Form onSubmit={handlePasswordRequest}>
+            <Form.Group className="mb-3">
+              <Form.Label>{t("auth.password")}</Form.Label>
+              <Form.Control
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                autoFocus
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>{t("profile.newPassword")}</Form.Label>
+              <Form.Control
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>{t("profile.confirmNewPassword")}</Form.Label>
+              <Form.Control
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </Form.Group>
+            <div className="d-flex gap-2 justify-content-end">
+              <Button variant="outline-secondary" onClick={() => setShowPasswordModal(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button variant="primary" type="submit" disabled={passwordLoading || newPassword !== confirmPassword}>
+                {passwordLoading ? t("common.loading") : t("profile.requestPasswordChange")}
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

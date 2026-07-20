@@ -1,10 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
-const { User } = require("../models");
+const { User, PasswordReset } = require("../models");
 const { authRequired, signToken } = require("../middleware/auth");
+const { sendPasswordChangeEmail } = require("../services/email");
 
 const router = express.Router();
 const CLIENT_URL = process.env.CLIENT_URL || process.env.REACT_APP_CLIENT_URL || "http://localhost:3000";
@@ -179,6 +181,85 @@ router.patch("/me/preferences", authRequired, async (req, res) => {
     res.json(req.user.toSafeJSON());
   } catch (err) {
     res.status(500).json({ error: "Failed to update preferences" });
+  }
+});
+
+router.post("/password/request", authRequired, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Current password and new password are required" });
+    }
+    if (!req.user.passwordHash) {
+      return res.status(400).json({ error: "Password is not set for this account" });
+    }
+
+    const ok = await bcrypt.compare(currentPassword, req.user.passwordHash);
+    if (!ok) {
+      return res.status(401).json({ error: "Current password is incorrect" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: "New password must be at least 6 characters" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await PasswordReset.create({
+      userId: req.user.id,
+      email: req.user.email,
+      token,
+      newPasswordHash,
+      expiresAt,
+    });
+
+    const confirmLink = `${CLIENT_URL}/profile?confirm-password=${token}`;
+    await sendPasswordChangeEmail(req.user.email, req.user.firstName || req.user.email, confirmLink);
+
+    res.json({ message: "Confirmation email sent" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to request password change" });
+  }
+});
+
+router.post("/password/confirm", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
+    const reset = await PasswordReset.findOne({ where: { token } });
+    if (!reset) {
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    if (reset.used) {
+      return res.status(400).json({ error: "Token already used" });
+    }
+
+    if (reset.expiresAt < new Date()) {
+      return res.status(400).json({ error: "Token expired" });
+    }
+
+    const user = await User.findByPk(reset.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.passwordHash = reset.newPasswordHash;
+    await user.save();
+
+    reset.used = true;
+    await reset.save();
+
+    res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to confirm password change" });
   }
 });
 
