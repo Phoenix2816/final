@@ -234,7 +234,11 @@ router.post("/password/request", authRequired, async (req, res) => {
     });
 
     const confirmLink = `${CLIENT_URL}/profile?confirm-password=${token}`;
-    await sendPasswordChangeEmail(req.user.email, req.user.firstName || req.user.email, confirmLink);
+    try {
+      await sendPasswordChangeEmail(req.user.email, req.user.firstName || req.user.email, confirmLink);
+    } catch (emailErr) {
+      console.error("Password change email failed:", emailErr);
+    }
 
     res.json({ message: "Confirmation email sent" });
   } catch (err) {
