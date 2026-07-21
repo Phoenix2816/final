@@ -119,12 +119,19 @@ function pick(arr, n) {
 
 async function ensureUser(data, passwordHash) {
   let user = await User.findOne({ where: { email: data.email } });
-  if (user) return user;
+  if (user) {
+    if (!user.emailConfirmed) {
+      user.emailConfirmed = true;
+      await user.save();
+    }
+    return user;
+  }
   user = await User.create({
     ...data,
     passwordHash,
     photo: data.photo || avatar(data.firstName, data.lastName),
     roles: data.roles || ["candidate"],
+    emailConfirmed: true,
   });
   return user;
 }
@@ -158,6 +165,7 @@ async function seedMock() {
       roles: ["admin", "recruiter", "candidate"],
       theme: "dark",
       language: "en",
+      emailConfirmed: true,
     });
     console.log(`Created ${ADMIN_EMAIL} as admin (password: password123)`);
   }

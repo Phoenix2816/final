@@ -46,11 +46,17 @@ function configurePassport() {
                 lastName: profile.name?.familyName || "",
                 photo: profile.photos?.[0]?.value || null,
                 roles: ["candidate"],
+                emailConfirmed: true,
               });
             } else {
               user.googleId = profile.id;
               if (!user.photo && profile.photos?.[0]?.value) {
                 user.photo = profile.photos[0].value;
+              }
+              if (!user.emailConfirmed) {
+                user.emailConfirmed = true;
+                user.emailConfirmToken = null;
+                user.emailConfirmExpires = null;
               }
               await user.save();
             }
@@ -93,9 +99,15 @@ function configurePassport() {
                 lastName: names.slice(1).join(" ") || "",
                 photo: profile.photos?.[0]?.value || null,
                 roles: ["candidate"],
+                emailConfirmed: true,
               });
             } else {
               user.githubId = profile.id;
+              if (!user.emailConfirmed) {
+                user.emailConfirmed = true;
+                user.emailConfirmToken = null;
+                user.emailConfirmExpires = null;
+              }
               await user.save();
             }
             user.lastLoginAt = new Date();

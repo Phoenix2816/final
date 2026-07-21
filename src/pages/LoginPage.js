@@ -11,8 +11,8 @@ export default function LoginPage() {
   const { login, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [email, setEmail] = useState("candidate@cv.local");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [providers, setProviders] = useState({ google: false, github: false });
   const [alertMessage, setAlertMessage] = useState(null);
@@ -69,7 +69,6 @@ export default function LoginPage() {
         </div>
         <h1>{t("auth.loginTitle")}</h1>
         {alertMessage && <Alert variant={alertVariant}>{alertMessage}</Alert>}
-        <p className="text-muted small">{t("auth.demoHint")}</p>
         <Form onSubmit={onSubmit}>
           <Form.Group className="mb-3">
             <Form.Label htmlFor="login-email">{t("auth.email")}</Form.Label>

@@ -31,81 +31,10 @@ export default function AppNavbar() {
     const q = query.trim();
     if (!q) return;
     const timer = setTimeout(() => {
-      navigate(`/search/${encodeURIComponent(q)}`);
+      navigate(`/search/${encodeURIComponent(q.trim())}`);
     }, 350);
     return () => clearTimeout(timer);
   }, [query, navigate]);
-
-  const tools = (
-    <div className="nav-tools d-flex align-items-center gap-2">
-      <Button
-        variant="outline-secondary"
-        size="sm"
-        className="icon-btn"
-        onClick={toggleTheme}
-        aria-label={theme === "dark" ? t("nav.themeLight") : t("nav.themeDark")}
-        title={t("nav.theme")}
-      >
-        <i className={`bi bi-${theme === "dark" ? "sun" : "moon-stars"}`} aria-hidden="true" />
-      </Button>
-
-      <NavDropdown
-        title={
-          <span>
-            <i className="bi bi-translate me-1" aria-hidden="true" />
-            {language.toUpperCase()}
-          </span>
-        }
-        align="end"
-        className="lang-dropdown"
-        aria-label={t("nav.language")}
-      >
-        <NavDropdown.Item active={language === "en"} onClick={() => setLanguage("en")}>
-          English
-        </NavDropdown.Item>
-        <NavDropdown.Item active={language === "ru"} onClick={() => setLanguage("ru")}>
-          Русский
-        </NavDropdown.Item>
-      </NavDropdown>
-
-      {user ? (
-        <NavDropdown
-          title={
-            <span className="user-chip">
-              {user.photo ? (
-                <img src={user.photo} alt="" className="avatar-xs" />
-              ) : (
-                <span className="avatar-xs avatar-fallback">
-                  {(user.firstName || user.email || "?").charAt(0).toUpperCase()}
-                </span>
-              )}
-              <span className="d-none d-md-inline ms-2">{user.firstName || user.email}</span>
-            </span>
-          }
-          align="end"
-        >
-          <NavDropdown.Item onClick={() => navigate("/profile")}>
-            <i className="bi bi-person me-2" />
-            {t("nav.profile")}
-          </NavDropdown.Item>
-          <NavDropdown.Divider />
-          <NavDropdown.Item
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
-          >
-            <i className="bi bi-box-arrow-right me-2" />
-            {t("nav.logout")}
-          </NavDropdown.Item>
-        </NavDropdown>
-      ) : (
-        <Button as={Link} to="/login" size="sm" variant="primary">
-          {t("nav.login")}
-        </Button>
-      )}
-    </div>
-  );
 
   const searchForm = (
     <Form
@@ -186,34 +115,168 @@ export default function AppNavbar() {
     <>
       <Navbar expand="xl" className="app-navbar sticky-top" variant={theme === "dark" ? "dark" : "light"}>
         <Container fluid className="px-3 px-lg-4">
-          <Navbar.Brand as={Link} to="/" className="brand-mark">
-            <span className="brand-icon">TF</span>
-            <span className="brand-text">{t("appName")}</span>
-          </Navbar.Brand>
+          <div className="navbar-top-row d-flex align-items-center gap-2 w-100">
+            <Navbar.Brand as={Link} to="/" className="brand-mark">
+              <span className="brand-icon">TF</span>
+              <span className="brand-text">{t("appName")}</span>
+            </Navbar.Brand>
 
-          <div className="header-nav-row d-none d-xl-flex">
-            <Container fluid className="px-3 px-lg-4">
+            <div className="nav-search-mobile d-flex d-xl-none flex-fill">
+              {searchForm}
+            </div>
+
+            <div className="nav-desktop-links d-none d-xl-flex align-items-center gap-2 ms-3">
               {headerNavLinks}
-            </Container>
-          </div>
-          
-          <div className="nav-search-header">{searchForm}</div>
+            </div>
 
-          <div className="nav-tools-fixed d-flex align-items-center gap-2">
-            {tools}
-            <Button
-              variant=""
-              onClick={() => setMobileNavOpen((prev) => !prev)}
-              className="ms-1 burger-toggle d-xl-none"
-              aria-expanded={mobileNavOpen}
-              aria-label={mobileNavOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-            >
-              <i className={`bi bi-${mobileNavOpen ? "x" : "list"}`} aria-hidden="true" />
-            </Button>
+            <div className="nav-tools-fixed d-flex align-items-center gap-2 ms-auto">
+              <div className="nav-tools-desktop d-none d-xl-flex align-items-center gap-2">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="icon-btn"
+                  onClick={toggleTheme}
+                  aria-label={theme === "dark" ? t("nav.themeLight") : t("nav.themeDark")}
+                  title={t("nav.theme")}
+                >
+                  <i className={`bi bi-${theme === "dark" ? "sun" : "moon-stars"}`} aria-hidden="true" />
+                </Button>
+                <NavDropdown
+                  title={
+                    <span>
+                      <i className="bi bi-translate me-1" aria-hidden="true" />
+                      {language.toUpperCase()}
+                    </span>
+                  }
+                  align="end"
+                  className="lang-dropdown"
+                  aria-label={t("nav.language")}
+                >
+                  <NavDropdown.Item active={language === "en"} onClick={() => setLanguage("en")}>
+                    English
+                  </NavDropdown.Item>
+                  <NavDropdown.Item active={language === "ru"} onClick={() => setLanguage("ru")}>
+                    Русский
+                  </NavDropdown.Item>
+                </NavDropdown>
+                {user ? (
+                  <NavDropdown
+                    title={
+                      <span className="user-chip">
+                        {user.photo ? (
+                          <img src={user.photo} alt="" className="avatar-xs" />
+                        ) : (
+                          <span className="avatar-xs avatar-fallback">
+                            {(user.firstName || user.email || "?").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="d-none d-md-inline ms-2">{user.firstName || user.email}</span>
+                      </span>
+                    }
+                    align="end"
+                  >
+                    <NavDropdown.Item onClick={() => navigate("/profile")}>
+                      <i className="bi bi-person me-2" />
+                      {t("nav.profile")}
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item
+                      onClick={() => {
+                        logout();
+                        navigate("/login");
+                      }}
+                    >
+                      <i className="bi bi-box-arrow-right me-2" />
+                      {t("nav.logout")}
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                ) : (
+                  <Button as={Link} to="/login" size="sm" variant="primary">
+                    {t("nav.login")}
+                  </Button>
+                )}
+              </div>
+              <div className="nav-tools-mobile d-flex d-xl-none align-items-center gap-2">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="icon-btn"
+                  onClick={toggleTheme}
+                  aria-label={theme === "dark" ? t("nav.themeLight") : t("nav.themeDark")}
+                  title={t("nav.theme")}
+                >
+                  <i className={`bi bi-${theme === "dark" ? "sun" : "moon-stars"}`} aria-hidden="true" />
+                </Button>
+                <NavDropdown
+                  title={
+                    <span>
+                      <i className="bi bi-translate" aria-hidden="true" />
+                    </span>
+                  }
+                  align="end"
+                  className="lang-dropdown"
+                  aria-label={t("nav.language")}
+                >
+                  <NavDropdown.Item active={language === "en"} onClick={() => setLanguage("en")}>
+                    English
+                  </NavDropdown.Item>
+                  <NavDropdown.Item active={language === "ru"} onClick={() => setLanguage("ru")}>
+                    Русский
+                  </NavDropdown.Item>
+                </NavDropdown>
+                {user ? (
+                  <NavDropdown
+                    title={
+                      <span className="user-chip">
+                        {user.photo ? (
+                          <img src={user.photo} alt="" className="avatar-xs" />
+                        ) : (
+                          <span className="avatar-xs avatar-fallback">
+                            {(user.firstName || user.email || "?").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </span>
+                    }
+                    align="end"
+                  >
+                    <NavDropdown.Item onClick={() => navigate("/profile")}>
+                      <i className="bi bi-person me-2" />
+                      {t("nav.profile")}
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item
+                      onClick={() => {
+                        logout();
+                        navigate("/login");
+                      }}
+                    >
+                      <i className="bi bi-box-arrow-right me-2" />
+                      {t("nav.logout")}
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                ) : (
+                  <Button as={Link} to="/login" size="sm" variant="primary">
+                    {t("nav.login")}
+                  </Button>
+                )}
+                <Button
+                  variant=""
+                  onClick={() => setMobileNavOpen((prev) => !prev)}
+                  className="ms-1 burger-toggle"
+                  aria-expanded={mobileNavOpen}
+                  aria-label={mobileNavOpen ? t("nav.closeMenu") : t("nav.openMenu")}
+                >
+                  <i className={`bi bi-${mobileNavOpen ? "x" : "list"}`} aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="nav-search-header d-none d-xl-flex">
+            {searchForm}
           </div>
         </Container>
       </Navbar>
-
 
       <div className={`mobile-nav-panel${mobileNavOpen ? " show" : ""} d-xl-none`}>
         <Container fluid className="px-3 px-lg-4">

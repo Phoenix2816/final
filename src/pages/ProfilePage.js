@@ -513,15 +513,25 @@ export default function ProfilePage() {
                   {profile.location}
                 </span>
               )}
-              {skills.length > 0 && (
-                <div className="d-flex flex-wrap gap-1">
-                  {skills.slice(0, 8).map((skill) => (
-                    <span key={skill.id || skill.name} className="tag-pill tag-pill-sm" style={{ background: tagColor(skill.name).bg, color: tagColor(skill.name).fg, borderColor: tagColor(skill.name).border }}>
-                      {skill.name}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {skills.length > 0 && (() => {
+                const MAX_VISIBLE = 4;
+                const visible = skills.slice(0, MAX_VISIBLE);
+                const remaining = skills.length - MAX_VISIBLE;
+                return (
+                  <div className="d-flex flex-wrap gap-1 align-items-center">
+                    {visible.map((skill) => (
+                      <span key={skill.id || skill.name} className="tag-pill tag-pill-sm" style={{ background: tagColor(skill.name).bg, color: tagColor(skill.name).fg, borderColor: tagColor(skill.name).border }}>
+                        {skill.name}
+                      </span>
+                    ))}
+                    {remaining > 0 && (
+                      <span className="tag-pill tag-pill-sm" style={{ background: "var(--tf-surface-2)", color: "var(--tf-muted)", borderColor: "var(--tf-border)" }}>
+                        +{remaining}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

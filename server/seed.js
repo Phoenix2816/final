@@ -56,6 +56,7 @@ async function seed({ force = true } = {}) {
     roles: ["admin", "recruiter", "candidate"],
     theme: "light",
     language: "en",
+    emailConfirmed: true,
   });
 
   const recruiter = await User.create({
@@ -66,6 +67,7 @@ async function seed({ force = true } = {}) {
     phone: "+1 555 0101",
     location: "Austin, USA",
     roles: ["recruiter", "candidate"],
+    emailConfirmed: true,
   });
 
   const candidate = await User.create({
@@ -77,6 +79,7 @@ async function seed({ force = true } = {}) {
     location: "Remote",
     photo: "https://ui-avatars.com/api/?name=Casey+Candidate&background=0f6e56&color=fff",
     roles: ["candidate"],
+    emailConfirmed: true,
   });
 
   const candidate2 = await User.create({
@@ -88,6 +91,7 @@ async function seed({ force = true } = {}) {
     location: "Berlin, DE",
     photo: "https://ui-avatars.com/api/?name=Jane+Developer&background=2463a0&color=fff",
     roles: ["candidate"],
+    emailConfirmed: true,
   });
 
   const attrs = await Attribute.bulkCreate([

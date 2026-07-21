@@ -23,9 +23,38 @@ const PALETTE = {
 
 const FALLBACK = { bg: "#f5f5f5", fg: "#616161", border: "#e0e0e0" };
 
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+const PASTEL_BG = [
+  "#e3f2fd", "#f3e5f5", "#e8f5e9", "#fff3e0", "#e0f7fa",
+  "#fce4ec", "#f1f8e9", "#ede7f6", "#eceff1", "#fbe9e7",
+];
+
+const PASTEL_FG = [
+  "#0b5cad", "#7b1fa2", "#1b7a3d", "#b46b00", "#00708a",
+  "#b0306b", "#558b2f", "#5e35b1", "#455a64", "#c0392b",
+];
+
+function generateColor(str) {
+  const h = hashString(str);
+  const bgIdx = h % PASTEL_BG.length;
+  const fgIdx = (h >> 2) % PASTEL_FG.length;
+  const bg = PASTEL_BG[bgIdx];
+  const fg = PASTEL_FG[fgIdx];
+  return { bg, fg, border: bg };
+}
+
 export function tagColor(tag) {
   if (!tag) return FALLBACK;
-  return PALETTE[tag] || FALLBACK;
+  if (PALETTE[tag]) return PALETTE[tag];
+  return generateColor(tag);
 }
 
 export function TagPill({ tag, onRemove, size = "md" }) {
