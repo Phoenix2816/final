@@ -72,16 +72,27 @@ export default function LoginPage() {
         <p className="text-muted small">{t("auth.demoHint")}</p>
         <Form onSubmit={onSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>{t("auth.email")}</Form.Label>
-            <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Form.Label htmlFor="login-email">{t("auth.email")}</Form.Label>
+            <Form.Control
+              id="login-email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("auth.password")}</Form.Label>
+            <Form.Label htmlFor="login-password">{t("auth.password")}</Form.Label>
             <Form.Control
+              id="login-password"
+              name="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
             />
           </Form.Group>
           <Button type="submit" className="w-100" disabled={loading}>

@@ -39,42 +39,54 @@ export default function RegisterPage() {
           <div className="row g-2">
             <div className="col-md-6">
               <Form.Group className="mb-3">
-                <Form.Label>{t("auth.firstName")}</Form.Label>
+                <Form.Label htmlFor="register-firstName">{t("auth.firstName")}</Form.Label>
                 <Form.Control
+                  id="register-firstName"
+                  name="firstName"
                   value={form.firstName}
                   onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                   required
+                  autoComplete="given-name"
                 />
               </Form.Group>
             </div>
             <div className="col-md-6">
               <Form.Group className="mb-3">
-                <Form.Label>{t("auth.lastName")}</Form.Label>
+                <Form.Label htmlFor="register-lastName">{t("auth.lastName")}</Form.Label>
                 <Form.Control
+                  id="register-lastName"
+                  name="lastName"
                   value={form.lastName}
                   onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                   required
+                  autoComplete="family-name"
                 />
               </Form.Group>
             </div>
           </div>
           <Form.Group className="mb-3">
-            <Form.Label>{t("auth.email")}</Form.Label>
+            <Form.Label htmlFor="register-email">{t("auth.email")}</Form.Label>
             <Form.Control
+              id="register-email"
+              name="email"
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
+              autoComplete="email"
             />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>{t("auth.password")}</Form.Label>
+            <Form.Label htmlFor="register-password">{t("auth.password")}</Form.Label>
             <Form.Control
+              id="register-password"
+              name="password"
               type="password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
               minLength={6}
+              autoComplete="new-password"
             />
           </Form.Group>
           <Button type="submit" className="w-100" disabled={loading}>

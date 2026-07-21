@@ -978,33 +978,42 @@ export default function ProfilePage() {
           )}
           <Form onSubmit={handlePasswordRequest}>
             <Form.Group className="mb-3">
-              <Form.Label>{t("auth.password")}</Form.Label>
+              <Form.Label htmlFor="profile-current-password">{t("auth.password")}</Form.Label>
               <Form.Control
+                id="profile-current-password"
+                name="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 autoFocus
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>{t("profile.newPassword")}</Form.Label>
+              <Form.Label htmlFor="profile-new-password">{t("profile.newPassword")}</Form.Label>
               <Form.Control
+                id="profile-new-password"
+                name="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={6}
+                autoComplete="new-password"
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>{t("profile.confirmNewPassword")}</Form.Label>
+              <Form.Label htmlFor="profile-confirm-new-password">{t("profile.confirmNewPassword")}</Form.Label>
               <Form.Control
+                id="profile-confirm-new-password"
+                name="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
+                autoComplete="new-password"
               />
             </Form.Group>
             <div className="d-flex gap-2 justify-content-end">

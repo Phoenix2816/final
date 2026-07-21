@@ -130,16 +130,18 @@ export default function PositionEditPage() {
           <Card.Body>
             <h3>Basics</h3>
             <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
-              <Form.Control value={form.title} onChange={(e) => patch({ title: e.target.value })} />
+              <Form.Label htmlFor="position-title">Title</Form.Label>
+              <Form.Control id="position-title" name="title" value={form.title} onChange={(e) => patch({ title: e.target.value })} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>{t("positions.company")}</Form.Label>
-              <Form.Control value={form.company} onChange={(e) => patch({ company: e.target.value })} />
+              <Form.Label htmlFor="position-company">{t("positions.company")}</Form.Label>
+              <Form.Control id="position-company" name="company" value={form.company} onChange={(e) => patch({ company: e.target.value })} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>{t("positions.shortDescription")}</Form.Label>
+              <Form.Label htmlFor="position-description">{t("positions.shortDescription")}</Form.Label>
               <Form.Control
+                id="position-description"
+                name="shortDescription"
                 as="textarea"
                 rows={3}
                 value={form.shortDescription}
@@ -148,8 +150,8 @@ export default function PositionEditPage() {
             </Form.Group>
             <div className="row g-3">
               <div className="col-md-4">
-                <Form.Label>{t("positions.level")}</Form.Label>
-                <Form.Select value={form.level} onChange={(e) => patch({ level: e.target.value })}>
+                <Form.Label htmlFor="position-level">{t("positions.level")}</Form.Label>
+                <Form.Select id="position-level" name="level" value={form.level} onChange={(e) => patch({ level: e.target.value })}>
                   <option value="junior">Junior</option>
                   <option value="mid">Mid</option>
                   <option value="senior">Senior</option>
@@ -157,8 +159,10 @@ export default function PositionEditPage() {
                 </Form.Select>
               </div>
               <div className="col-md-4">
-                <Form.Label>{t("positions.visibility")}</Form.Label>
+                <Form.Label htmlFor="position-visibility">{t("positions.visibility")}</Form.Label>
                 <Form.Select
+                  id="position-visibility"
+                  name="visibility"
                   value={form.visibility}
                   onChange={(e) => patch({ visibility: e.target.value })}
                 >
@@ -167,8 +171,10 @@ export default function PositionEditPage() {
                 </Form.Select>
               </div>
               <div className="col-md-4">
-                <Form.Label>{t("positions.maxProjects")}</Form.Label>
+                <Form.Label htmlFor="position-maxProjects">{t("positions.maxProjects")}</Form.Label>
                 <Form.Control
+                  id="position-maxProjects"
+                  name="maxProjects"
                   type="number"
                   value={form.maxProjects}
                   onChange={(e) => patch({ maxProjects: Number(e.target.value) })}
