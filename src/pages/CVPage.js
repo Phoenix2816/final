@@ -229,6 +229,15 @@ export default function CVPage() {
     (f) => !PERSONAL_KEYS.has(f.key) && !CONTACT_KEYS.has(f.key)
   );
   const skillFields = attrFields.filter((f) => SKILL_TYPES.has(f.type));
+  const skillGroups = useMemo(() => {
+    const map = new Map();
+    skillFields.forEach((f) => {
+      const cat = f.category || t("cv.sectionSkills");
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat).push(f);
+    });
+    return Array.from(map.entries());
+  }, [skillFields, t]);
   const summaryFields = attrFields.filter((f) => f.type === "markdown");
   const attribFields = attrFields.filter((f) => f.type !== "markdown" && !SKILL_TYPES.has(f.type));
 
@@ -436,36 +445,41 @@ export default function CVPage() {
             </ul>
           </section>
 
-          {skillFields.length > 0 && (
+          {skillGroups.length > 0 && (
             <section className="resume-card">
               <h3 className="resume-card-title">
                 <i className="bi bi-stars me-2" />
                 {t("cv.sectionSkills")}
               </h3>
-              <div className="cv-skill-badges">
-                {skillFields.map((f) => {
-                  const value = getValue(f);
-                  const empty = f.missing && (fieldEdits[f.key] === undefined || !value);
-                  if (empty) {
-                    return (
-                      <span key={f.key} className="badge rounded-pill text-bg-warning attr-missing-badge">
-                        ⚠ {f.label}
-                      </span>
-                    );
-                  }
-                  const labels = Array.isArray(value)
-                    ? value
-                    : String(value || "")
-                        .split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean);
-                  return labels.map((lab, i) => (
-                    <span key={`${f.key}-${i}`} className="badge rounded-pill text-bg-primary cv-skill">
-                      {lab}
-                    </span>
-                  ));
-                })}
-              </div>
+              {skillGroups.map(([cat, fields]) => (
+                <div key={cat} className="mb-3">
+                  <h6 className="cv-skill-category">{cat}</h6>
+                  <div className="cv-skill-badges">
+                    {fields.map((f) => {
+                      const value = getValue(f);
+                      const empty = f.missing && (fieldEdits[f.key] === undefined || !value);
+                      if (empty) {
+                        return (
+                          <span key={f.key} className="badge rounded-pill text-bg-warning attr-missing-badge">
+                            ⚠ {f.label}
+                          </span>
+                        );
+                      }
+                      const labels = Array.isArray(value)
+                        ? value
+                        : String(value || "")
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean);
+                      return labels.map((lab, i) => (
+                        <span key={`${f.key}-${i}`} className="badge rounded-pill text-bg-primary cv-skill">
+                          {lab}
+                        </span>
+                      ));
+                    })}
+                  </div>
+                </div>
+              ))}
             </section>
           )}
 

@@ -1720,6 +1720,15 @@
   transform: translateY(-2px);
 }
 
+.cv-skill-category {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tf-muted);
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
 /* Stat cards for professional attributes */
 .cv-stat-grid {
   display: grid;
