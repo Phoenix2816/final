@@ -160,7 +160,7 @@ export default function AppNavbar() {
           <div className="navbar-top-row d-flex align-items-center gap-2">
             <Navbar.Brand as={Link} to="/" className="brand-mark">
               <span className="brand-icon">TF</span>
-              <span className="brand-text">{t("appName")}</span>
+              <span className="brand-text d-none d-md-inline">{t("appName")}</span>
             </Navbar.Brand>
 
             <div className="nav-search-mobile d-flex d-xl-none flex-fill">
@@ -173,6 +173,9 @@ export default function AppNavbar() {
 
             <div className="nav-tools-fixed d-flex align-items-center gap-2 ms-auto">
               <div className="nav-tools-desktop d-none d-xl-flex align-items-center gap-2">
+                <div className="nav-search-desktop d-none d-xl-flex flex-fill">
+                  {searchForm}
+                </div>
                 <Button
                   variant="outline-secondary"
                   size="sm"
@@ -186,8 +189,8 @@ export default function AppNavbar() {
                 <NavDropdown
                   title={
                     <span>
-                      <i className="bi bi-translate me-1" aria-hidden="true" />
-                      {language.toUpperCase()}
+                      <i className="bi bi-translate" aria-hidden="true" />
+                      <span className="d-none d-md-inline ms-1">{language.toUpperCase()}</span>
                     </span>
                   }
                   align="end"
@@ -207,13 +210,30 @@ export default function AppNavbar() {
                 <Button
                   variant="outline-secondary"
                   size="sm"
-                  className="icon-btn d-none d-md-block"
+                  className="icon-btn"
                   onClick={toggleTheme}
                   aria-label={theme === "dark" ? t("nav.themeLight") : t("nav.themeDark")}
                   title={t("nav.theme")}
                 >
                   <i className={`bi bi-${theme === "dark" ? "sun" : "moon-stars"}`} aria-hidden="true" />
                 </Button>
+                <NavDropdown
+                  title={
+                    <span>
+                      <i className="bi bi-translate" aria-hidden="true" />
+                    </span>
+                  }
+                  align="end"
+                  className="lang-dropdown"
+                  aria-label={t("nav.language")}
+                >
+                  <NavDropdown.Item active={language === "en"} onClick={() => setLanguage("en")}>
+                    English
+                  </NavDropdown.Item>
+                  <NavDropdown.Item active={language === "ru"} onClick={() => setLanguage("ru")}>
+                    Русский
+                  </NavDropdown.Item>
+                </NavDropdown>
                 <UserMenu />
                 <Button
                   variant=""
@@ -226,10 +246,6 @@ export default function AppNavbar() {
                 </Button>
               </div>
             </div>
-          </div>
-
-          <div className="nav-search-header d-none d-xl-flex">
-            {searchForm}
           </div>
         </Container>
       </Navbar>

@@ -92,6 +92,16 @@ async function start() {
       console.warn("User.sync(alter) skipped:", err.message);
     }
 
+    try {
+      const { User } = require("./models");
+      await User.update(
+        { emailConfirmed: true },
+        { where: { emailConfirmed: { [require("sequelize").Op.or]: [{ emailConfirmed: false }, { emailConfirmed: null }] } } }
+      );
+    } catch (err) {
+      console.warn("Email confirmation migration skipped:", err.message);
+    }
+
     const { User } = require("./models");
     const count = await User.count();
     if (count === 0 || process.env.SEED_ON_START === "true") {
