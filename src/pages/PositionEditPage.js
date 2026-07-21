@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Button, Form, Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
@@ -25,7 +25,8 @@ const empty = {
 
 export default function PositionEditPage() {
   const { id } = useParams();
-  const isNew = id === "new";
+  const location = useLocation();
+  const isNew = id === "new" || location.pathname.endsWith("/positions/new");
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [form, setForm] = useState(empty);

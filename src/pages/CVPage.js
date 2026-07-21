@@ -14,7 +14,7 @@ import { AttributeValueInput } from "../components/common/AttributeFields";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import { tagColor } from "../components/common/TechTag";
 
-const SKILL_TYPES = new Set(["dropdown", "boolean"]);
+const SKILL_TYPES = new Set(["technology", "string"]);
 const PERSONAL_KEYS = new Set(["firstName", "lastName", "photo"]);
 const CONTACT_KEYS = new Set(["email", "phone", "location"]);
 

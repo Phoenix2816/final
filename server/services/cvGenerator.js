@@ -73,26 +73,27 @@ async function generateCVPayload(cv, options = {}) {
   });
 
   const projectTags = position.projectTags || [];
-  let projects = await Project.findAll({
+  const allProjects = await Project.findAll({
     where: { userId: user.id },
     order: [["order", "ASC"], ["updatedAt", "DESC"]],
   });
 
-  if (projectTags.length > 0) {
-    projects = projects.filter((p) =>
-      (p.tags || []).some((t) =>
-        projectTags.map((x) => x.toLowerCase()).includes(String(t).toLowerCase())
-      )
-    );
-  }
-
-  const max = position.maxProjects || projects.length;
+  const max = position.maxProjects || allProjects.length;
   const selectedIds = cv.selectedProjectIds || [];
   let selectedProjects;
+
   if (selectedIds.length) {
-    selectedProjects = projects.filter((p) => selectedIds.includes(p.id)).slice(0, max);
+    selectedProjects = allProjects.filter((p) => selectedIds.includes(p.id)).slice(0, max);
   } else {
-    selectedProjects = projects.slice(0, max);
+    let filtered = allProjects;
+    if (projectTags.length > 0) {
+      filtered = allProjects.filter((p) =>
+        (p.tags || []).some((t) =>
+          projectTags.map((x) => x.toLowerCase()).includes(String(t).toLowerCase())
+        )
+      );
+    }
+    selectedProjects = filtered.slice(0, max);
   }
 
   const fields = [...builtin, ...custom];
@@ -128,7 +129,7 @@ async function generateCVPayload(cv, options = {}) {
     },
     fields,
     projects: selectedProjects,
-    availableProjects: projects,
+    availableProjects: allProjects,
     complete,
   };
 }
