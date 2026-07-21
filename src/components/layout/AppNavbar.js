@@ -111,11 +111,53 @@ export default function AppNavbar() {
     </Nav>
   );
 
+  const UserMenu = () => {
+    if (user) {
+      return (
+        <NavDropdown
+          title={
+            <span className="user-chip">
+              {user.photo ? (
+                <img src={user.photo} alt="" className="avatar-xs" />
+              ) : (
+                <span className="avatar-xs avatar-fallback">
+                  {(user.firstName || user.email || "?").charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="d-none d-md-inline ms-2">{user.firstName || user.email}</span>
+            </span>
+          }
+          align="end"
+        >
+          <NavDropdown.Item onClick={() => navigate("/profile")}>
+            <i className="bi bi-person me-2" />
+            {t("nav.profile")}
+          </NavDropdown.Item>
+          <NavDropdown.Divider />
+          <NavDropdown.Item
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          >
+            <i className="bi bi-box-arrow-right me-2" />
+            {t("nav.logout")}
+          </NavDropdown.Item>
+        </NavDropdown>
+      );
+    }
+    return (
+      <Button as={Link} to="/login" size="sm" variant="primary" className="nav-login-btn">
+        {t("nav.login")}
+      </Button>
+    );
+  };
+
   return (
     <>
       <Navbar expand="xl" className="app-navbar sticky-top" variant={theme === "dark" ? "dark" : "light"}>
         <Container fluid className="px-3 px-lg-4">
-          <div className="navbar-top-row d-flex align-items-center gap-2 w-100">
+          <div className="navbar-top-row d-flex align-items-center gap-2">
             <Navbar.Brand as={Link} to="/" className="brand-mark">
               <span className="brand-icon">TF</span>
               <span className="brand-text">{t("appName")}</span>
@@ -159,106 +201,20 @@ export default function AppNavbar() {
                     Русский
                   </NavDropdown.Item>
                 </NavDropdown>
-                {user ? (
-                  <NavDropdown
-                    title={
-                      <span className="user-chip">
-                        {user.photo ? (
-                          <img src={user.photo} alt="" className="avatar-xs" />
-                        ) : (
-                          <span className="avatar-xs avatar-fallback">
-                            {(user.firstName || user.email || "?").charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                        <span className="d-none d-md-inline ms-2">{user.firstName || user.email}</span>
-                      </span>
-                    }
-                    align="end"
-                  >
-                    <NavDropdown.Item onClick={() => navigate("/profile")}>
-                      <i className="bi bi-person me-2" />
-                      {t("nav.profile")}
-                    </NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item
-                      onClick={() => {
-                        logout();
-                        navigate("/login");
-                      }}
-                    >
-                      <i className="bi bi-box-arrow-right me-2" />
-                      {t("nav.logout")}
-                    </NavDropdown.Item>
-                  </NavDropdown>
-                ) : (
-                  <Button as={Link} to="/login" size="sm" variant="primary">
-                    {t("nav.login")}
-                  </Button>
-                )}
+                <UserMenu />
               </div>
               <div className="nav-tools-mobile d-flex d-xl-none align-items-center gap-2">
                 <Button
                   variant="outline-secondary"
                   size="sm"
-                  className="icon-btn"
+                  className="icon-btn d-none d-md-block"
                   onClick={toggleTheme}
                   aria-label={theme === "dark" ? t("nav.themeLight") : t("nav.themeDark")}
                   title={t("nav.theme")}
                 >
                   <i className={`bi bi-${theme === "dark" ? "sun" : "moon-stars"}`} aria-hidden="true" />
                 </Button>
-                <NavDropdown
-                  title={
-                    <span>
-                      <i className="bi bi-translate" aria-hidden="true" />
-                    </span>
-                  }
-                  align="end"
-                  className="lang-dropdown"
-                  aria-label={t("nav.language")}
-                >
-                  <NavDropdown.Item active={language === "en"} onClick={() => setLanguage("en")}>
-                    English
-                  </NavDropdown.Item>
-                  <NavDropdown.Item active={language === "ru"} onClick={() => setLanguage("ru")}>
-                    Русский
-                  </NavDropdown.Item>
-                </NavDropdown>
-                {user ? (
-                  <NavDropdown
-                    title={
-                      <span className="user-chip">
-                        {user.photo ? (
-                          <img src={user.photo} alt="" className="avatar-xs" />
-                        ) : (
-                          <span className="avatar-xs avatar-fallback">
-                            {(user.firstName || user.email || "?").charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                      </span>
-                    }
-                    align="end"
-                  >
-                    <NavDropdown.Item onClick={() => navigate("/profile")}>
-                      <i className="bi bi-person me-2" />
-                      {t("nav.profile")}
-                    </NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item
-                      onClick={() => {
-                        logout();
-                        navigate("/login");
-                      }}
-                    >
-                      <i className="bi bi-box-arrow-right me-2" />
-                      {t("nav.logout")}
-                    </NavDropdown.Item>
-                  </NavDropdown>
-                ) : (
-                  <Button as={Link} to="/login" size="sm" variant="primary">
-                    {t("nav.login")}
-                  </Button>
-                )}
+                <UserMenu />
                 <Button
                   variant=""
                   onClick={() => setMobileNavOpen((prev) => !prev)}
