@@ -208,6 +208,22 @@ export default function CVPage() {
     }
   };
 
+  const safeFields = payload?.fields || [];
+  const contactFields = safeFields.filter((f) => CONTACT_KEYS.has(f.key));
+  const attrFields = safeFields.filter((f) => !PERSONAL_KEYS.has(f.key) && !CONTACT_KEYS.has(f.key));
+  const skillFields = attrFields.filter((f) => SKILL_TYPES.has(f.type));
+  const skillGroups = useMemo(() => {
+    const map = new Map();
+    skillFields.forEach((f) => {
+      const cat = f.category || t("cv.sectionSkills");
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat).push(f);
+    });
+    return Array.from(map.entries());
+  }, [skillFields, t]);
+  const summaryFields = attrFields.filter((f) => f.type === "markdown");
+  const attribFields = attrFields.filter((f) => f.type !== "markdown" && !SKILL_TYPES.has(f.type));
+
   if (loading || !payload) {
     return (
       <div className="page-shell">
@@ -221,25 +237,8 @@ export default function CVPage() {
     (payload.candidate?.id === user.id || (!payload.readOnly && payload.candidate?.email === user.email));
   const canLike =
     payload.canLike !== undefined
-      ? payload.canLike
-      : Boolean(user && !isOwn && payload.cv.status === "published");
-
-  const contactFields = payload.fields.filter((f) => CONTACT_KEYS.has(f.key));
-  const attrFields = payload.fields.filter(
-    (f) => !PERSONAL_KEYS.has(f.key) && !CONTACT_KEYS.has(f.key)
-  );
-  const skillFields = attrFields.filter((f) => SKILL_TYPES.has(f.type));
-  const skillGroups = useMemo(() => {
-    const map = new Map();
-    skillFields.forEach((f) => {
-      const cat = f.category || t("cv.sectionSkills");
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat).push(f);
-    });
-    return Array.from(map.entries());
-  }, [skillFields, t]);
-  const summaryFields = attrFields.filter((f) => f.type === "markdown");
-  const attribFields = attrFields.filter((f) => f.type !== "markdown" && !SKILL_TYPES.has(f.type));
+    ? payload.canLike
+    : Boolean(user && !isOwn && payload.cv.status === "published");
 
   const requiredIds = payload.position.requiredAttributeIds || [];
   const requiredFields = requiredIds
