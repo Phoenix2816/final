@@ -503,7 +503,7 @@ export default function ProfilePage() {
                   if (roleAttr.value?.label) return roleAttr.value.label;
                   return String(roleAttr.value);
                 }
-                return t("profile.candidate");
+                return profile.roles?.[0] ? t(`users.roleLabels.${profile.roles[0]}`) : "";
               })()}
             </p>
             <div className="d-flex flex-wrap gap-2 align-items-center">

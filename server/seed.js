@@ -44,7 +44,7 @@ async function seed({ force = true } = {}) {
     return;
   }
 
-  const passwordHash = await bcrypt.hash("password123", 10);
+  const passwordHash = await bcrypt.hash("123123", 10);
 
   const admin = await User.create({
     email: "admin@cv.local",
