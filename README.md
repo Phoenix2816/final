@@ -171,86 +171,97 @@ npm start
 
 ```
 testing/
-├── src/
+├── src/                            # Frontend (React)
 │   ├── api/
-│   │   └── client.js              # Axios instance with auth interceptor
+│   │   └── client.js               # Axios instance with auth interceptor, token refresh, and error handling
 │   ├── components/
-│   │   ├── common/                # Reusable UI components
-│   │   │   ├── DataTable.js
-│   │   │   ├── TechTag.js
-│   │   │   ├── TechTagInput.js
-│   │   │   ├── ProjectCard.js
-│   │   │   ├── HeartLike.js
-│   │   │   ├── ConfirmDialog.js
-│   │   │   ├── EmptyState.js
-│   │   │   └── LoadingSkeleton.js
+│   │   ├── common/                 # Reusable UI components
+│   │   │   ├── AttributeFields.js  # Dynamic form fields for attributes (text, number, select, etc.)
+│   │   │   ├── ConfirmDialog.js    # Generic confirmation modal for destructive actions
+│   │   │   ├── DataTable.js        # Reusable data table with sorting, pagination, search, and selection
+│   │   │   ├── EmptyState.js       # Empty state placeholder with icon, title, and hint
+│   │   │   ├── HeartLike.js        # Like/heart button component with count
+│   │   │   ├── LoadingSkeleton.js  # Skeleton loading placeholder
+│   │   │   ├── ProjectCard.js      # Editable project card with drag-and-drop reordering
+│   │   │   ├── SaveIndicator.js    # Auto-save status indicator (saving/saved/conflict)
+│   │   │   ├── TechTag.js          # Colored technology tag/badge
+│   │   │   └── TechTagInput.js     # Searchable multi-select input for technologies
 │   │   └── discussions/
-│   │       └── DiscussionPanel.js
+│   │       └── DiscussionPanel.js  # Real-time discussion/chat panel using Socket.io
 │   ├── components/layout/
-│   │   └── AppNavbar.js           # Main navigation bar
+│   │   └── AppNavbar.js            # Main navigation bar with search, theme toggle, language switch, and mobile menu
 │   ├── contexts/
-│   │   ├── AuthContext.js         # Authentication state
-│   │   └── PreferencesContext.js  # Theme and language preferences
+│   │   ├── AuthContext.js           # Authentication state: login, register, logout, token refresh, role checks
+│   │   └── PreferencesContext.js   # Theme (dark/light) and language (en/ru) preferences with persistence
 │   ├── hooks/
-│   │   └── useAutoSave.js         # Debounced auto-save hook
+│   │   └── useAutoSave.js          # Debounced auto-save hook with conflict detection and status tracking
 │   ├── i18n/
-│   │   ├── index.js
-│   │   ├── en.json
-│   │   └── ru.json
+│   │   ├── index.js                 # i18next initialization and language detection
+│   │   ├── en.json                  # English translations
+│   │   └── ru.json                  # Russian translations
 │   ├── pages/
-│   │   ├── HomePage.js            # Dashboard with stats and tag cloud
-│   │   ├── PositionsPage.js       # Position list with filters
-│   │   ├── PositionDetailPage.js  # Position details and discussions
-│   │   ├── PositionEditPage.js    # Create / edit position
-│   │   ├── UsersPage.js           # Admin user management
-│   │   ├── CVPage.js              # Candidate résumé view
-│   │   ├── ProfilePage.js         # User profile editor
-│   │   ├── AttributesPage.js      # Attribute library
-│   │   ├── LoginPage.js
-│   │   ├── RegisterPage.js
-│   │   ├── OAuthCallbackPage.js
-│   │   └── SearchResultsPage.js
-│   ├── App.css                    # Global component styles
-│   ├── App.js                     # Route definitions and layout
-│   ├── index.css                  # CSS variables and base styles
-│   └── index.js                   # React entry point
-├── server/
+│   │   ├── HomePage.js             # Dashboard with stats cards, recent activity, and technology tag cloud
+│   │   ├── PositionsPage.js        # Position list with search, filters (level, visibility), sort, and pagination
+│   │   ├── PositionDetailPage.js   # Position details, requirements, and real-time discussion
+│   │   ├── PositionEditPage.js     # Create/edit position with attributes and required technologies
+│   │   ├── UsersPage.js            # Admin user management: list, search, filter, role assignment, block/unblock
+│   │   ├── CVPage.js               # Candidate CV view with markdown, projects, likes, and discussion
+│   │   ├── ProfilePage.js          # User profile editor: personal info, attributes, skills, projects, CVs, password change
+│   │   ├── AttributesPage.js       # Attribute library with search, filters, usage stats, and CRUD
+│   │   ├── LoginPage.js            # Email/password login with social OAuth buttons and email confirmation alerts
+│   │   ├── RegisterPage.js         # Registration form with email confirmation flow
+│   │   ├── OAuthCallbackPage.js    # OAuth callback handler for Google/GitHub login redirects
+│   │   └── SearchResultsPage.js    # Global search results across positions, CVs, and users
+│   ├── App.css                     # Global component styles, responsive breakpoints, theme variables
+│   ├── App.js                      # Route definitions, layout wrapper, theme provider, i18n setup
+│   ├── index.css                   # CSS custom properties (design tokens), base/reset styles
+│   └── index.js                    # React entry point, renders App into DOM
+├── server/                          # Backend (Express + Sequelize)
 │   ├── config/
-│   │   └── database.js            # Sequelize configuration
+│   │   └── database.js              # Sequelize configuration: dialect, connection pool, SSL options, model sync
 │   ├── middleware/
-│   │   └── auth.js                # JWT and role middleware
-│   ├── models/                    # Sequelize models
-│   │   ├── index.js
-│   │   ├── User.js
-│   │   ├── Position.js
-│   │   ├── CV.js
-│   │   ├── Attribute.js
-│   │   ├── Project.js
-│   │   ├── DiscussionMessage.js
-│   │   ├── CVLike.js
-│   │   ├── UserAttribute.js
-│   │   └── RecentAttribute.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── users.js
-│   │   ├── positions.js
-│   │   ├── cvs.js
-│   │   ├── attributes.js
-│   │   ├── projects.js
-│   │   ├── stats.js
-│   │   └── upload.js
-│   ├── services/
-│   │   ├── accessRules.js
-│   │   ├── cvGenerator.js
-│   │   └── queryHelpers.js
-│   ├── socket.js                  # Socket.io setup
-│   ├── seed.js                    # Database seeding
-│   ├── seedMock.js                # Mock data seeding
-│   ├── server.js                  # Express app entry point
-│   └── .env
-├── .env.example
-├── package.json
-└── README.md
+│   │   └── auth.js                  # JWT verification middleware, role-based access control, token signing
+│   ├── models/                      # Sequelize ORM models
+│   │   ├── index.js                 # Model registry, associations between models
+│   │   ├── User.js                  # User entity: email, password, roles, preferences, skills, timestamps
+│   │   ├── Position.js              # Job position entity: title, company, level, visibility, requirements
+│   │   ├── CV.js                    # Curriculum Vitae entity: status, content, summary, relation to user/position
+│   │   ├── CVLike.js                # Like entity linking a recruiter to a CV
+│   │   ├── DiscussionMessage.js     # Discussion message entity for positions and CVs
+│   │   ├── Attribute.js             # Attribute catalog entity: name, category, type, options
+│   │   ├── UserAttribute.js         # Junction table linking users to attributes with values
+│   │   ├── Project.js               # Project entity for candidate portfolios
+│   │   ├── RecentAttribute.js       # Tracks recently used attributes per user
+│   │   └── PasswordReset.js         # Password reset token entity with expiry and usage tracking
+│   ├── routes/                      # Express route handlers
+│   │   ├── auth.js                  # Registration, login, OAuth (Google/GitHub), email confirmation, password change
+│   │   ├── users.js                 # User CRUD, profile updates, role management, bulk block/unblock
+│   │   ├── positions.js             # Position CRUD, filtering, sorting, attribute assignment
+│   │   ├── cvs.js                   # CV CRUD, publish/unpublish, bulk operations
+│   │   ├── attributes.js            # Attribute library CRUD, categories, technologies, usage stats
+│   │   ├── projects.js              # Project CRUD and reordering
+│   │   ├── stats.js                 # Dashboard statistics: counts, recent activity, likes
+│   │   └── upload.js                # Image upload endpoint (handles multipart/form-data)
+│   ├── services/                    # Business logic helpers
+│   │   ├── accessRules.js           # Query filtering and access control logic for positions/CVs
+│   │   ├── cvGenerator.js           # Generates CV data structure from user profile and attributes
+│   │   ├── queryHelpers.js          # Sequelize query utilities: full-text search, sorting, pagination
+│   │   └── email.js                 # EmailJS integration for sending confirmation emails
+│   ├── socket.js                    # Socket.io setup: connection handling, real-time discussion events
+│   ├── server.js                    # Express app entry: middleware, CORS, routes, database sync, server startup
+│   ├── seed.js                      # Database seeding script (creates demo users, positions, attributes)
+│   ├── seedMock.js                  # Extended seeding with mock data (extra users, positions, projects)
+│   ├── reset-passwords.js           # Dev utility to bulk reset passwords for all users
+│   ├── uploads/                     # Local image upload storage
+│   ├── data/                        # Local SQLite database file (dev only)
+│   └── .env                         # Server environment variables (gitignored)
+├── .env.example                      # Example environment configuration
+├── .gitignore                        # Git ignore rules
+├── .npmrc                            # npm config (legacy-peer-deps for Vercel builds)
+├── package.json                      # Root package.json with frontend scripts
+├── README.md                         # Project documentation
+└── server/
+    └── package.json                  # Server dependencies and scripts
 ```
 
 ## Roles & Permissions

@@ -21,7 +21,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await register(form);
+      await register(form);
       toast.success(t("auth.registerSuccess"));
       navigate("/login");
     } catch (err) {
