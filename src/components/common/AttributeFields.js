@@ -132,8 +132,11 @@ async function uploadToCloudinary(file) {
     `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
     { method: "POST", body }
   );
-  if (!res.ok) throw new Error("Cloudinary upload failed");
-  const json = await res.json();
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = json?.error?.message || `Cloudinary upload failed (${res.status})`;
+    throw new Error(msg);
+  }
   return json.secure_url;
 }
 
