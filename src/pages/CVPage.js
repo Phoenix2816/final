@@ -305,7 +305,7 @@ export default function CVPage() {
                 <span key={field.key} className={`cv-meta ${empty ? "is-missing" : ""}`}>
                   <i className={`bi ${fieldIcon(field)}`} />
                   <span className={empty ? "attr-missing" : "cv-meta-value"}>
-                    {empty ? t("common.missing") : formatValue(field, value, t)}
+                    {empty ? t("common.missing") : `${field.label}: ${formatValue(field, value, t)}`}
                   </span>
                 </span>
               ))}
@@ -407,7 +407,7 @@ export default function CVPage() {
                 <li key={field.key} className={`cv-quickfact ${empty ? "is-missing" : ""}`}>
                   <i className={`bi ${fieldIcon(field)}`} />
                   <span className={empty ? "attr-missing" : "cv-quickfact-value"}>
-                    {empty ? t("common.missing") : formatValue(field, value, t)}
+                    {empty ? t("common.missing") : `${field.label}: ${formatValue(field, value, t)}`}
                   </span>
                 </li>
               ))}
