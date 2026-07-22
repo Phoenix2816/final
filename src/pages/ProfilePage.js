@@ -9,7 +9,7 @@ import useAutoSave from "../hooks/useAutoSave";
 import SaveIndicator from "../components/common/SaveIndicator";
 import DataTable, { ToolbarButton } from "../components/common/DataTable";
 import ConfirmDialog from "../components/common/ConfirmDialog";
-import { AttributeValueInput } from "../components/common/AttributeFields";
+import { AttributeValueInput, ImageUpload } from "../components/common/AttributeFields";
 import ProjectCard from "../components/common/ProjectCard";
 import EmptyState from "../components/common/EmptyState";
 import HeartLike from "../components/common/HeartLike";
@@ -567,12 +567,13 @@ export default function ProfilePage() {
                   </div>
                 )}
                 {canEdit && (
-                  <Form.Control
-                    className="mt-2"
-                    placeholder="Photo URL"
-                    value={profile.photo || ""}
-                    onChange={(e) => updateProfileField("photo", e.target.value)}
-                  />
+                  <div className="mt-2">
+                    <ImageUpload
+                      value={profile.photo}
+                      onChange={(url) => updateProfileField("photo", url)}
+                      missing={!profile.photo}
+                    />
+                  </div>
                 )}
               </div>
               <div className="col-md-9">

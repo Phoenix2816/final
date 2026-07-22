@@ -121,6 +121,9 @@ export function AttributeValueDisplay({ type, value, missing }) {
 const CLOUDINARY_CLOUD = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+const MAX_SIZE = 5 * 1024 * 1024;
+
 async function uploadToCloudinary(file) {
   const body = new FormData();
   body.append("file", file);
@@ -134,62 +137,81 @@ async function uploadToCloudinary(file) {
   return json.secure_url;
 }
 
-function ImageUpload({ value, onChange, missing }) {
+export function ImageUpload({ value, onChange, missing }) {
+  const [uploading, setUploading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
   const onDrop = useCallback(
     async (files) => {
       const file = files[0];
       if (!file) return;
+      setError(null);
+
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setError("Unsupported file type. Use JPG, PNG or WEBP.");
+        return;
+      }
+      if (file.size > MAX_SIZE) {
+        setError("File is too large. Maximum size is 5 MB.");
+        return;
+      }
+
       const useCloud = Boolean(CLOUDINARY_CLOUD && CLOUDINARY_PRESET);
+      setUploading(true);
       try {
+        let url;
         if (useCloud) {
           try {
-            const url = await uploadToCloudinary(file);
-            onChange(url);
-            return;
+            url = await uploadToCloudinary(file);
           } catch {
-            // Fall back to the server proxy if direct Cloudinary upload fails.
+            // fallback to server proxy if direct upload fails
           }
         }
-        const form = new FormData();
-        form.append("file", file);
-        const { data } = await api.post("/upload", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        if (!data || !data.url) {
-          throw new Error(data?.error || "Upload failed");
+        if (!url) {
+          const form = new FormData();
+          form.append("file", file);
+          if (value && typeof value === "string" && value.startsWith("http")) {
+            form.append("oldUrl", value);
+          }
+          const { data } = await api.post("/upload", form, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          if (!data || !data.url) {
+            throw new Error(data?.error || "Upload failed");
+          }
+          url = data.url;
+          if (data.warning) toast(data.warning, { icon: "⚠️" });
         }
-        onChange(data.url);
-        if (data.warning) toast(data.warning, { icon: "⚠️" });
+        onChange(url);
       } catch (err) {
-        toast.error(err.response?.data?.error || err.message || "Upload failed");
+        setError(err.response?.data?.error || err.message || "Upload failed");
+      } finally {
+        setUploading(false);
       }
     },
-    [onChange]
+    [onChange, value]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "image/*": [] },
+    accept: { "image/jpeg": [], "image/png": [], "image/webp": [] },
     maxFiles: 1,
   });
 
   return (
     <div>
-      {value && <img src={resolveImageUrl(value)} alt="" className="attr-image-preview mb-2" />}
+      {value && !value.startsWith("data:") && (
+        <img src={resolveImageUrl(value)} alt="" className="attr-image-preview mb-2" />
+      )}
       <div
         {...getRootProps()}
         className={`dropzone ${isDragActive ? "active" : ""} ${missing ? "missing-field" : ""}`}
       >
         <input {...getInputProps()} />
         <i className="bi bi-cloud-arrow-up me-2" />
-        Drop image or click to upload
+        {uploading ? "Uploading…" : isDragActive ? "Drop the image…" : "Drop image or click to upload"}
       </div>
-      <Form.Control
-        className="mt-2"
-        placeholder="Or paste image URL"
-        value={typeof value === "string" && !value.startsWith("data:") ? value : ""}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      {error && <div className="text-danger small mt-1">{error}</div>}
     </div>
   );
 }

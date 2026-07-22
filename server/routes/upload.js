@@ -25,7 +25,18 @@ if (cloudName) {
 }
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Unsupported file type. Use JPG, PNG or WEBP."));
+    }
+  },
+});
 
 router.get("/config", (_req, res) => {
   res.json({
@@ -38,6 +49,18 @@ router.get("/config", (_req, res) => {
   });
 });
 
+async function deleteCloudinaryImage(url) {
+  if (!url || !cloudinaryReady || !cloudName) return;
+  try {
+    const matches = url.match(/\/v\d+\/(.+?)\.(jpg|jpeg|png|webp)/i);
+    if (matches && matches[1]) {
+      await cloudinary.uploader.destroy(matches[1]);
+    }
+  } catch (err) {
+    console.warn("Failed to delete old Cloudinary image:", err.message);
+  }
+}
+
 router.post("/", authRequired, upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -48,6 +71,11 @@ router.post("/", authRequired, upload.single("file"), async (req, res) => {
       return res.status(500).json({ error: "Image uploads are not configured" });
     }
 
+    const oldUrl = req.body.oldUrl;
+    if (oldUrl) {
+      deleteCloudinaryImage(oldUrl);
+    }
+
     const b64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
     const result = await cloudinary.uploader.upload(b64, {
       folder: "cv-management",
@@ -56,7 +84,7 @@ router.post("/", authRequired, upload.single("file"), async (req, res) => {
     res.json({ url: result.secure_url });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Upload failed" });
+    res.status(500).json({ error: err.message || "Upload failed" });
   }
 });
 
