@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const { User, RefreshToken } = require("../models");
 
 function getToken(req) {
   const header = req.headers.authorization;
@@ -55,8 +55,38 @@ function signToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET || "dev-secret",
-    { expiresIn: "7d" }
+    { expiresIn: "15m" }
   );
+}
+
+async function generateRefreshToken(user) {
+  const token = require("crypto").randomBytes(40).toString("hex");
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  await RefreshToken.create({
+    userId: user.id,
+    token,
+    expiresAt,
+  });
+  return token;
+}
+
+async function refreshAccessToken(refreshToken) {
+  const record = await RefreshToken.findOne({ where: { token: refreshToken } });
+  if (!record || record.revoked || record.expiresAt < new Date()) {
+    return null;
+  }
+  const user = await User.findByPk(record.userId);
+  if (!user || user.isBlocked) {
+    return null;
+  }
+  const accessToken = signToken(user);
+  const newRefreshToken = await generateRefreshToken(user);
+  await record.update({ revoked: true });
+  return { accessToken, refreshToken: newRefreshToken };
+}
+
+async function revokeRefreshTokens(userId) {
+  await RefreshToken.update({ revoked: true }, { where: { userId } });
 }
 
 module.exports = {
@@ -65,4 +95,7 @@ module.exports = {
   requireRoles,
   signToken,
   getToken,
+  generateRefreshToken,
+  refreshAccessToken,
+  revokeRefreshTokens,
 };

@@ -86,6 +86,32 @@ async function start() {
     }
 
     try {
+      const { RefreshToken } = require("./models");
+      await RefreshToken.sync({ alter: true });
+    } catch (err) {
+      console.warn("RefreshToken.sync(alter) skipped:", err.message);
+    }
+
+    const dialect = sequelize.getDialect();
+    if (dialect === "mysql") {
+      try {
+        await sequelize.query(`ALTER TABLE positions ADD FULLTEXT INDEX positions_ft (title, shortDescription, company, projectTags)`);
+      } catch (err) {
+        console.warn("positions FULLTEXT index skipped:", err.message);
+      }
+      try {
+        await sequelize.query(`ALTER TABLE users ADD FULLTEXT INDEX users_ft (firstName, lastName, email)`);
+      } catch (err) {
+        console.warn("users FULLTEXT index skipped:", err.message);
+      }
+      try {
+        await sequelize.query(`ALTER TABLE cvs ADD FULLTEXT INDEX cvs_ft (summary, tags, description)`);
+      } catch (err) {
+        console.warn("cvs FULLTEXT index skipped:", err.message);
+      }
+    }
+
+    try {
       const { User } = require("./models");
       await User.sync({ alter: true });
     } catch (err) {

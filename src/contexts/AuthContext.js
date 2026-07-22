@@ -14,8 +14,9 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(Boolean(localStorage.getItem("token")));
 
-  const persist = useCallback((token, nextUser) => {
+  const persist = useCallback((token, refreshToken, nextUser) => {
     if (token) localStorage.setItem("token", token);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
     if (nextUser) {
       localStorage.setItem("user", JSON.stringify(nextUser));
       if (nextUser.theme) localStorage.setItem("theme", nextUser.theme);
@@ -33,10 +34,11 @@ export function AuthProvider({ children }) {
     }
     try {
       const { data } = await api.get("/auth/me");
-      persist(token, data);
+      persist(token, localStorage.getItem("refreshToken"), data);
       return data;
     } catch {
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       setUser(null);
       return null;
@@ -51,17 +53,26 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
-    persist(data.token, data.user);
+    persist(data.token, data.refreshToken, data.user);
     return data.user;
   }, [persist]);
 
   const register = useCallback(async (payload) => {
     const { data } = await api.post("/auth/register", payload);
+    if (data.token) {
+      persist(data.token, data.refreshToken, data.user);
+    }
     return data;
-  }, []);
+  }, [persist]);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // ignore
+    }
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     setUser(null);
   }, []);
@@ -82,7 +93,7 @@ export function AuthProvider({ children }) {
   );
 
   const setUserSafe = useCallback(
-    (u) => persist(localStorage.getItem("token"), u),
+    (u) => persist(localStorage.getItem("token"), localStorage.getItem("refreshToken"), u),
     [persist]
   );
 

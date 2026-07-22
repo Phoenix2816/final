@@ -363,6 +363,9 @@ router.post("/:id/like", authRequired, async (req, res) => {
     if (cv.status !== "published") {
       return res.status(400).json({ error: "Can only like published CVs" });
     }
+    if (!req.user.hasRole("recruiter") && !req.user.hasRole("admin")) {
+      return res.status(403).json({ error: "Only recruiters and admins can like CVs" });
+    }
 
     const existing = await CVLike.findOne({
       where: { cvId: cv.id, recruiterId: req.user.id },
@@ -386,7 +389,10 @@ router.delete("/:id/like", authRequired, async (req, res) => {
     const cv = await CV.findByPk(req.params.id);
     if (!cv) return res.status(404).json({ error: "Not found" });
     if (cv.userId === req.user.id) {
-      return res.status(403).json({ error: "Cannot like your own CV" });
+      return res.status(403).json({ error: "Cannot unlike your own CV" });
+    }
+    if (!req.user.hasRole("recruiter") && !req.user.hasRole("admin")) {
+      return res.status(403).json({ error: "Only recruiters and admins can unlike CVs" });
     }
 
     const existing = await CVLike.findOne({

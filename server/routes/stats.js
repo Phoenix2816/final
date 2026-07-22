@@ -1,7 +1,8 @@
 const express = require("express");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const { User, Position, CV, CVLike, Project } = require("../models");
 const { authRequired, optionalAuth } = require("../middleware/auth");
+const { fullTextSearch } = require("../services/queryHelpers");
 
 const router = express.Router();
 
@@ -60,17 +61,11 @@ router.get("/search", authRequired, async (req, res) => {
     const q = (req.query.q || "").trim();
     if (!q) return res.json({ positions: [], cvs: [], users: [] });
 
-    const like = { [Op.like]: `%${q}%` };
     const isStaff = req.user.hasRole("admin") || req.user.hasRole("recruiter");
 
+    const positionWhere = fullTextSearch(["title", "shortDescription", "company", "projectTags"], q);
     const positions = await Position.findAll({
-      where: {
-        [Op.or]: [
-          { title: like },
-          { company: like },
-          { shortDescription: like },
-        ],
-      },
+      where: positionWhere,
       limit: 12,
     });
 
@@ -80,7 +75,7 @@ router.get("/search", authRequired, async (req, res) => {
           where: { positionId: { [Op.in]: positionIds } },
           attributes: [
             "positionId",
-            [require("sequelize").fn("COUNT", require("sequelize").col("id")), "count"],
+            [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
           ],
           group: ["positionId"],
           raw: true,
@@ -92,6 +87,7 @@ router.get("/search", authRequired, async (req, res) => {
     });
 
     const cvWhere = isStaff ? { status: "published" } : { userId: req.user.id };
+    const cvSearch = fullTextSearch(["summary", "tags", "description"], q);
     const cvs = await CV.findAll({
       where: cvWhere,
       include: [
@@ -100,11 +96,12 @@ router.get("/search", authRequired, async (req, res) => {
           model: User,
           as: "candidate",
           attributes: ["id", "firstName", "lastName", "email", "photo"],
+          required: false,
           where: {
             [Op.or]: [
-              { firstName: like },
-              { lastName: like },
-              { email: like },
+              { firstName: { [Op.like]: `%${q}%` } },
+              { lastName: { [Op.like]: `%${q}%` } },
+              { email: { [Op.like]: `%${q}%` } },
             ],
           },
         },
@@ -122,9 +119,7 @@ router.get("/search", authRequired, async (req, res) => {
 
     const users = isStaff
       ? await User.findAll({
-          where: {
-            [Op.or]: [{ firstName: like }, { lastName: like }, { email: like }],
-          },
+          where: fullTextSearch(["firstName", "lastName", "email"], q),
           limit: 12,
         })
       : [];

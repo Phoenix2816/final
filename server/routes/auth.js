@@ -4,8 +4,8 @@ const crypto = require("crypto");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
-const { User, PasswordReset } = require("../models");
-const { authRequired, signToken } = require("../middleware/auth");
+const { User, PasswordReset, RefreshToken } = require("../models");
+const { authRequired, signToken, generateRefreshToken, refreshAccessToken, revokeRefreshTokens } = require("../middleware/auth");
 const { sendPasswordChangeEmail } = require("../services/email");
 
 const router = express.Router();
@@ -164,8 +164,13 @@ router.post("/register", async (req, res) => {
       console.warn("Confirmation email failed to send");
     }
 
+    const accessToken = signToken(user);
+    const refreshToken = await generateRefreshToken(user);
+
     res.status(201).json({
       message: "Account created. Please check your email to confirm your account.",
+      token: accessToken,
+      refreshToken,
       userId: user.id,
     });
   } catch (err) {
@@ -191,10 +196,38 @@ router.post("/login", async (req, res) => {
     await user.save();
 
     const token = signToken(user);
-    res.json({ token, user: user.toSafeJSON() });
+    const refreshToken = await generateRefreshToken(user);
+    res.json({ token, refreshToken, user: user.toSafeJSON() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Login failed" });
+  }
+});
+
+router.post("/refresh", async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Refresh token required" });
+    }
+    const result = await refreshAccessToken(refreshToken);
+    if (!result) {
+      return res.status(401).json({ error: "Invalid or expired refresh token" });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Token refresh failed" });
+  }
+});
+
+router.post("/logout", authRequired, async (req, res) => {
+  try {
+    await revokeRefreshTokens(req.user.id);
+    res.json({ message: "Logged out" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Logout failed" });
   }
 });
 
@@ -331,7 +364,9 @@ router.get("/confirm-email", async (req, res) => {
 
 function oauthCallback(req, res) {
   const token = signToken(req.user);
-  res.redirect(`${CLIENT_URL}/oauth/callback?token=${token}`);
+  const refreshToken = generateRefreshToken(req.user).then((rt) => {
+    res.redirect(`${CLIENT_URL}/oauth/callback?token=${token}&refreshToken=${rt}`);
+  });
 }
 
 router.get("/google", (req, res, next) => {
