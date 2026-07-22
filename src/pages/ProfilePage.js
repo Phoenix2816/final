@@ -559,13 +559,7 @@ export default function ProfilePage() {
           <div className="profile-me detail-panel profile-tab-content">
             <div className="row g-3">
               <div className="col-md-3 text-center">
-                {profile.photo ? (
-                  <img src={profile.photo} alt="" className="profile-photo" />
-                ) : (
-                  <div className="profile-photo placeholder">
-                    {(profile.firstName || "?").charAt(0)}
-                  </div>
-                )}
+
                 {canEdit && (
                   <div className="mt-2">
                     <ImageUpload
