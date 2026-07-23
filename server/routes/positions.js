@@ -252,125 +252,150 @@ router.put("/:id", authRequired, requireRoles("recruiter", "admin"), async (req,
 });
 
 router.delete("/", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
-  const { ids } = req.body;
-  await Position.destroy({ where: { id: { [Op.in]: ids || [] } } });
-  res.json({ message: "Deleted" });
+  try {
+    const { ids } = req.body;
+    await Position.destroy({ where: { id: { [Op.in]: ids || [] } } });
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete positions" });
+  }
 });
 
 router.delete("/:id", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
-  await Position.destroy({ where: { id: req.params.id } });
-  res.json({ message: "Deleted" });
+  try {
+    await Position.destroy({ where: { id: req.params.id } });
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete position" });
+  }
 });
 
 router.get("/:id/messages", authRequired, async (req, res) => {
-  const canSee = await Position.findByPk(req.params.id);
-  if (!canSee) return res.status(404).json({ error: "Not found" });
-  if (!(await userCanSeePosition(req.user, canSee))) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
+  try {
+    const canSee = await Position.findByPk(req.params.id);
+    if (!canSee) return res.status(404).json({ error: "Not found" });
+    if (!(await userCanSeePosition(req.user, canSee))) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
 
-  const since = req.query.since ? new Date(req.query.since) : null;
-  const where = { positionId: req.params.id };
-  if (since && !Number.isNaN(since.getTime())) {
-    where.createdAt = { [Op.gt]: since };
-  }
+    const since = req.query.since ? new Date(req.query.since) : null;
+    const where = { positionId: req.params.id };
+    if (since && !Number.isNaN(since.getTime())) {
+      where.createdAt = { [Op.gt]: since };
+    }
 
-  const messages = await DiscussionMessage.findAll({
-    where,
-    include: [
-      {
-        model: User,
-        as: "author",
-        attributes: ["id", "firstName", "lastName", "photo", "email"],
-      },
-    ],
-    order: [["createdAt", "ASC"]],
-    limit: 200,
-  });
-  res.json(messages);
+    const messages = await DiscussionMessage.findAll({
+      where,
+      include: [
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "firstName", "lastName", "photo", "email"],
+        },
+      ],
+      order: [["createdAt", "ASC"]],
+      limit: 200,
+    });
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
 });
 
 router.post("/:id/messages", authRequired, async (req, res) => {
-  const position = await Position.findByPk(req.params.id);
-  if (!position) return res.status(404).json({ error: "Not found" });
-  if (!(await userCanSeePosition(req.user, position))) {
-    return res.status(403).json({ error: "Forbidden" });
+  try {
+    const position = await Position.findByPk(req.params.id);
+    if (!position) return res.status(404).json({ error: "Not found" });
+    if (!(await userCanSeePosition(req.user, position))) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    if (!req.body.content || !String(req.body.content).trim()) {
+      return res.status(400).json({ error: "Content required" });
+    }
+
+    const message = await DiscussionMessage.create({
+      positionId: position.id,
+      userId: req.user.id,
+      content: req.body.content,
+    });
+
+    const full = await DiscussionMessage.findByPk(message.id, {
+      include: [
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "firstName", "lastName", "photo", "email"],
+        },
+      ],
+    });
+
+    const io = req.app.get("io");
+    if (io) io.to(`position:${position.id}`).emit("discussion:message", full);
+
+    res.status(201).json(full);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to post message" });
   }
-  if (!req.body.content || !String(req.body.content).trim()) {
-    return res.status(400).json({ error: "Content required" });
-  }
-
-  const message = await DiscussionMessage.create({
-    positionId: position.id,
-    userId: req.user.id,
-    content: req.body.content,
-  });
-
-  const full = await DiscussionMessage.findByPk(message.id, {
-    include: [
-      {
-        model: User,
-        as: "author",
-        attributes: ["id", "firstName", "lastName", "photo", "email"],
-      },
-    ],
-  });
-
-  const io = req.app.get("io");
-  if (io) io.to(`position:${position.id}`).emit("discussion:message", full);
-
-  res.status(201).json(full);
 });
 
 router.get("/:id/cvs", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
-  const { page, pageSize, sortBy, sortDir, search, offset } = parseListQuery(req.query);
-  const where = {
-    positionId: req.params.id,
-    status: "published",
-  };
+  try {
+    const { page, pageSize, sortBy, sortDir, search, offset } = parseListQuery(req.query);
+    const where = {
+      positionId: req.params.id,
+      status: "published",
+    };
 
-  const { rows, count } = await CV.findAndCountAll({
-    where,
-    include: [
-      {
-        model: User,
-        as: "candidate",
-        attributes: ["id", "firstName", "lastName", "email", "photo"],
-        where: search
-          ? {
-              [Op.or]: [
-                { firstName: { [Op.like]: `%${search}%` } },
-                { lastName: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } },
-              ],
-            }
-          : undefined,
+    const { rows, count } = await CV.findAndCountAll({
+      where,
+      include: [
+        {
+          model: User,
+          as: "candidate",
+          attributes: ["id", "firstName", "lastName", "email", "photo"],
+          where: search
+            ? {
+                [Op.or]: [
+                  { firstName: { [Op.like]: `%${search}%` } },
+                  { lastName: { [Op.like]: `%${search}%` } },
+                  { email: { [Op.like]: `%${search}%` } },
+                ],
+              }
+            : undefined,
+        },
+      ],
+      order: [[sortBy === "likesCount" ? "likesCount" : "updatedAt", sortDir]],
+      limit: pageSize,
+      offset,
+    });
+
+    const likes = await CVLike.findAll({
+      where: {
+        recruiterId: req.user.id,
+        cvId: { [Op.in]: rows.map((r) => r.id) },
       },
-    ],
-    order: [[sortBy === "likesCount" ? "likesCount" : "updatedAt", sortDir]],
-    limit: pageSize,
-    offset,
-  });
+    });
+    const likedIds = new Set(likes.map((l) => l.cvId));
 
-  const likes = await CVLike.findAll({
-    where: {
-      recruiterId: req.user.id,
-      cvId: { [Op.in]: rows.map((r) => r.id) },
-    },
-  });
-  const likedIds = new Set(likes.map((l) => l.cvId));
-
-  res.json(
-    paginatedResult(
-      rows.map((r) => ({
-        ...r.toJSON(),
-        likedByMe: likedIds.has(r.id),
-      })),
-      count,
-      page,
-      pageSize
-    )
-  );
+    res.json(
+      paginatedResult(
+        rows.map((r) => ({
+          ...r.toJSON(),
+          likedByMe: likedIds.has(r.id),
+        })),
+        count,
+        page,
+        pageSize
+      )
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch position CVs" });
+  }
 });
 
 module.exports = router;

@@ -315,42 +315,57 @@ router.post("/:id/unpublish", authRequired, async (req, res) => {
 });
 
 router.post("/bulk/publish", authRequired, async (req, res) => {
-  const { ids } = req.body;
-  const results = [];
-  for (const id of ids || []) {
-    const cv = await CV.findByPk(id);
-    if (!cv) continue;
-    if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
-    const payload = await generateCVPayload(cv);
-    if (!payload.complete) {
-      results.push({ id, error: "incomplete" });
-      continue;
+  try {
+    const { ids } = req.body;
+    const results = [];
+    for (const id of ids || []) {
+      const cv = await CV.findByPk(id);
+      if (!cv) continue;
+      if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
+      const payload = await generateCVPayload(cv);
+      if (!payload.complete) {
+        results.push({ id, error: "incomplete" });
+        continue;
+      }
+      cv.status = "published";
+      await cv.save();
+      results.push({ id, status: "published" });
     }
-    cv.status = "published";
-    await cv.save();
-    results.push({ id, status: "published" });
+    res.json({ results });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to bulk publish CVs" });
   }
-  res.json({ results });
 });
 
 router.delete("/", authRequired, async (req, res) => {
-  const { ids } = req.body;
-  const cvs = await CV.findAll({ where: { id: { [Op.in]: ids || [] } } });
-  for (const cv of cvs) {
-    if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
-    await cv.destroy();
+  try {
+    const { ids } = req.body;
+    const cvs = await CV.findAll({ where: { id: { [Op.in]: ids || [] } } });
+    for (const cv of cvs) {
+      if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
+      await cv.destroy();
+    }
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete CVs" });
   }
-  res.json({ message: "Deleted" });
 });
 
 router.delete("/:id", authRequired, async (req, res) => {
-  const cv = await CV.findByPk(req.params.id);
-  if (!cv) return res.status(404).json({ error: "Not found" });
-  if (cv.userId !== req.user.id && !req.user.hasRole("admin")) {
-    return res.status(403).json({ error: "Forbidden" });
+  try {
+    const cv = await CV.findByPk(req.params.id);
+    if (!cv) return res.status(404).json({ error: "Not found" });
+    if (cv.userId !== req.user.id && !req.user.hasRole("admin")) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    await cv.destroy();
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete CV" });
   }
-  await cv.destroy();
-  res.json({ message: "Deleted" });
 });
 
 router.post("/:id/like", authRequired, async (req, res) => {

@@ -181,38 +181,69 @@ router.put("/:id/attributes", authRequired, async (req, res) => {
 });
 
 router.post("/:id/block", authRequired, requireRoles("admin"), async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) return res.status(404).json({ error: "Not found" });
-  user.isBlocked = true;
-  await user.save();
-  res.json(user.toSafeJSON());
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: "Not found" });
+    user.isBlocked = true;
+    await user.save();
+    res.json(user.toSafeJSON());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to block user" });
+  }
 });
 
 router.post("/:id/unblock", authRequired, requireRoles("admin"), async (req, res) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) return res.status(404).json({ error: "Not found" });
-  user.isBlocked = false;
-  await user.save();
-  res.json(user.toSafeJSON());
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: "Not found" });
+    user.isBlocked = false;
+    await user.save();
+    res.json(user.toSafeJSON());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to unblock user" });
+  }
 });
 
 router.post("/bulk/block", authRequired, requireRoles("admin"), async (req, res) => {
-  const { ids } = req.body;
-  await User.update({ isBlocked: true }, { where: { id: { [Op.in]: ids } } });
-  res.json({ message: "Blocked" });
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ error: "ids required" });
+    }
+    await User.update({ isBlocked: true }, { where: { id: { [Op.in]: ids } } });
+    res.json({ message: "Blocked" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to block users" });
+  }
 });
 
 router.post("/bulk/unblock", authRequired, requireRoles("admin"), async (req, res) => {
-  const { ids } = req.body;
-  await User.update({ isBlocked: false }, { where: { id: { [Op.in]: ids } } });
-  res.json({ message: "Unblocked" });
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ error: "ids required" });
+    }
+    await User.update({ isBlocked: false }, { where: { id: { [Op.in]: ids } } });
+    res.json({ message: "Unblocked" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to unblock users" });
+  }
 });
 
 router.delete("/bulk", authRequired, requireRoles("admin"), async (req, res) => {
-  const { ids } = req.body;
-  const filtered = (ids || []).filter((id) => Number(id) !== req.user.id);
-  await User.destroy({ where: { id: { [Op.in]: filtered } } });
-  res.json({ message: "Deleted" });
+  try {
+    const { ids } = req.body;
+    const filtered = (ids || []).filter((id) => Number(id) !== req.user.id);
+    await User.destroy({ where: { id: { [Op.in]: filtered } } });
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete users" });
+  }
 });
 
 router.put("/:id/roles", authRequired, requireRoles("admin"), async (req, res) => {

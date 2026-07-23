@@ -110,15 +110,20 @@ router.put("/reorder", authRequired, async (req, res) => {
 });
 
 router.get("/user/:userId", authRequired, async (req, res) => {
-  const userId = Number(req.params.userId);
-  if (req.user.id !== userId && !req.user.hasRole("admin")) {
-    return res.status(403).json({ error: "Forbidden" });
+  try {
+    const userId = Number(req.params.userId);
+    if (req.user.id !== userId && !req.user.hasRole("admin")) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    const projects = await Project.findAll({
+      where: { userId },
+      order: [["updatedAt", "DESC"]],
+    });
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch projects" });
   }
-  const projects = await Project.findAll({
-    where: { userId },
-    order: [["updatedAt", "DESC"]],
-  });
-  res.json(projects);
 });
 
 router.post("/", authRequired, async (req, res) => {
@@ -173,23 +178,33 @@ router.put("/:id", authRequired, async (req, res) => {
 });
 
 router.delete("/:id", authRequired, async (req, res) => {
-  const project = await Project.findByPk(req.params.id);
-  if (!project) return res.status(404).json({ error: "Not found" });
-  if (project.userId !== req.user.id && !req.user.hasRole("admin")) {
-    return res.status(403).json({ error: "Forbidden" });
+  try {
+    const project = await Project.findByPk(req.params.id);
+    if (!project) return res.status(404).json({ error: "Not found" });
+    if (project.userId !== req.user.id && !req.user.hasRole("admin")) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    await project.destroy();
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete project" });
   }
-  await project.destroy();
-  res.json({ message: "Deleted" });
 });
 
 router.delete("/", authRequired, async (req, res) => {
-  const { ids } = req.body;
-  const projects = await Project.findAll({ where: { id: { [Op.in]: ids || [] } } });
-  for (const p of projects) {
-    if (p.userId !== req.user.id && !req.user.hasRole("admin")) continue;
-    await p.destroy();
+  try {
+    const { ids } = req.body;
+    const projects = await Project.findAll({ where: { id: { [Op.in]: ids || [] } } });
+    for (const p of projects) {
+      if (p.userId !== req.user.id && !req.user.hasRole("admin")) continue;
+      await p.destroy();
+    }
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete projects" });
   }
-  res.json({ message: "Deleted" });
 });
 
 module.exports = router;

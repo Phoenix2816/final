@@ -237,7 +237,7 @@ export default function SearchResultsPage() {
                 key: "name",
                 label: "Name",
                 render: (r) => {
-                  const name = `${r.firstName || ""} ${r.lastName || ""}`.trim() || r.email;
+                  const name = `${r.firstName || ""} ${r.lastName || ""}`.trim() || r.email || "User";
                   const initials = name
                     .split(" ")
                     .map((p) => p[0])

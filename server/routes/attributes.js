@@ -86,92 +86,92 @@ router.get("/technologies", authRequired, async (req, res) => {
 });
 
 router.get("/categories", authRequired, async (_req, res) => {
-  const rows = await Attribute.findAll({
-    attributes: ["category"],
-    group: ["category"],
-    order: [["category", "ASC"]],
-  });
-  res.json(rows.map((r) => r.category));
+  try {
+    const rows = await Attribute.findAll({
+      attributes: ["category"],
+      group: ["category"],
+      order: [["category", "ASC"]],
+    });
+    res.json(rows.map((r) => r.category));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch categories" });
+  }
 });
 
 router.get("/recent", authRequired, async (req, res) => {
-  const recent = await RecentAttribute.findAll({
-    where: { userId: req.user.id },
-    include: [{ model: Attribute, as: "attribute" }],
-    order: [["usedAt", "DESC"]],
-    limit: 10,
-  });
-  res.json(recent.map((r) => r.attribute).filter(Boolean));
+  try {
+    const recent = await RecentAttribute.findAll({
+      where: { userId: req.user.id },
+      include: [{ model: Attribute, as: "attribute" }],
+      order: [["usedAt", "DESC"]],
+      limit: 10,
+    });
+    res.json(recent.map((r) => r.attribute).filter(Boolean));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch recent attributes" });
+  }
 });
 
 router.get("/:id", authRequired, async (req, res) => {
-  const attr = await Attribute.findByPk(req.params.id);
-  if (!attr) return res.status(404).json({ error: "Not found" });
-  res.json(attr);
-});
-
-router.post("/", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
   try {
-    const { category, name, description, type, kind, options } = req.body;
-    if (!category || !name || !type) {
-      return res.status(400).json({ error: "category, name, type required" });
-    }
-    const normalizedKind = kind === "technology" ? "technology" : "attribute";
-    const normalizedName = name.trim();
-    const existing = await Attribute.findOne({
-      where: { name: { [Op.like]: normalizedName }, kind: normalizedKind },
-    });
-    if (existing) {
-      return res.status(409).json({ error: "Attribute with this name already exists", id: existing.id });
-    }
-    const attr = await Attribute.create({
-      category,
-      name: normalizedName,
-      description: description || "",
-      type,
-      kind: normalizedKind,
-      options: options || [],
-      createdById: req.user.id,
-    });
-    res.status(201).json(attr);
+    const attr = await Attribute.findByPk(req.params.id);
+    if (!attr) return res.status(404).json({ error: "Not found" });
+    res.json(attr);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to create attribute" });
+    res.status(500).json({ error: "Failed to fetch attribute" });
   }
 });
 
 router.put("/:id", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
-  const attr = await Attribute.findByPk(req.params.id);
-  if (!attr) return res.status(404).json({ error: "Not found" });
-  const { category, name, description, type, kind, options } = req.body;
-  if (category !== undefined) attr.category = category;
-  if (name !== undefined) {
-    const normalizedName = name.trim();
-    const duplicate = await Attribute.findOne({
-      where: { name: { [Op.like]: normalizedName }, kind: kind || attr.kind, id: { [Op.ne]: attr.id } },
-    });
-    if (duplicate) {
-      return res.status(409).json({ error: "Attribute with this name already exists" });
+  try {
+    const attr = await Attribute.findByPk(req.params.id);
+    if (!attr) return res.status(404).json({ error: "Not found" });
+    const { category, name, description, type, kind, options } = req.body;
+    if (category !== undefined) attr.category = category;
+    if (name !== undefined) {
+      const normalizedName = name.trim();
+      const duplicate = await Attribute.findOne({
+        where: { name: { [Op.like]: normalizedName }, kind: kind || attr.kind, id: { [Op.ne]: attr.id } },
+      });
+      if (duplicate) {
+        return res.status(409).json({ error: "Attribute with this name already exists" });
+      }
+      attr.name = normalizedName;
     }
-    attr.name = normalizedName;
+    if (description !== undefined) attr.description = description;
+    if (type !== undefined) attr.type = type;
+    if (kind !== undefined) attr.kind = kind === "technology" ? "technology" : "attribute";
+    if (options !== undefined) attr.options = options;
+    await attr.save();
+    res.json(attr);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update attribute" });
   }
-  if (description !== undefined) attr.description = description;
-  if (type !== undefined) attr.type = type;
-  if (kind !== undefined) attr.kind = kind === "technology" ? "technology" : "attribute";
-  if (options !== undefined) attr.options = options;
-  await attr.save();
-  res.json(attr);
 });
 
 router.delete("/", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
-  const { ids } = req.body;
-  await Attribute.destroy({ where: { id: { [Op.in]: ids || [] } } });
-  res.json({ message: "Deleted" });
+  try {
+    const { ids } = req.body;
+    await Attribute.destroy({ where: { id: { [Op.in]: ids || [] } } });
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete attributes" });
+  }
 });
 
 router.delete("/:id", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
-  await Attribute.destroy({ where: { id: req.params.id } });
-  res.json({ message: "Deleted" });
+  try {
+    await Attribute.destroy({ where: { id: req.params.id } });
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete attribute" });
+  }
 });
 
 router.get("/technologies", authRequired, async (req, res) => {
