@@ -45,8 +45,12 @@ export default function PositionEditPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await api.get("/attributes", { params: { pageSize: 100 } });
-      setAttributes(data.data);
+      try {
+        const { data } = await api.get("/attributes", { params: { pageSize: 100 } });
+        setAttributes(data.data);
+      } catch {
+        setAttributes([]);
+      }
     })();
   }, []);
 

@@ -87,7 +87,13 @@ export default function AttributesPage() {
   };
 
   useEffect(() => {
-    api.get("/attributes/categories").then((r) => setCategories(r.data));
+    let cancelled = false;
+    api.get("/attributes/categories").then((r) => {
+      if (!cancelled) setCategories(r.data);
+    }).catch(() => {
+      if (!cancelled) setCategories([]);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {

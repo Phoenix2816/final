@@ -377,9 +377,14 @@ router.get("/confirm-email", async (req, res) => {
 
 function oauthCallback(req, res) {
   const token = signToken(req.user);
-  const refreshToken = generateRefreshToken(req.user).then((rt) => {
-    res.redirect(`${CLIENT_URL}/oauth/callback?token=${token}&refreshToken=${rt}`);
-  });
+  generateRefreshToken(req.user)
+    .then((rt) => {
+      res.redirect(`${CLIENT_URL}/oauth/callback?token=${token}&refreshToken=${rt}`);
+    })
+    .catch((err) => {
+      console.error("OAuth refresh token failed", err);
+      res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);
+    });
 }
 
 router.get("/google", (req, res, next) => {

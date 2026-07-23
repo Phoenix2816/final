@@ -254,8 +254,12 @@ export function TagInput({ value = [], onChange, loadOptions, placeholder = "Tag
     let cancelled = false;
     (async () => {
       if (!loadOptions) return;
-      const opts = await loadOptions("");
-      if (!cancelled) setOptions((opts || []).map((t) => ({ value: t, label: t })));
+      try {
+        const opts = await loadOptions("");
+        if (!cancelled) setOptions((opts || []).map((t) => ({ value: t, label: t })));
+      } catch {
+        if (!cancelled) setOptions([]);
+      }
     })();
     return () => {
       cancelled = true;
@@ -273,7 +277,7 @@ export function TagInput({ value = [], onChange, loadOptions, placeholder = "Tag
         if (meta.action === "input-change" && loadOptions) {
           loadOptions(input).then((opts) =>
             setOptions((opts || []).map((t) => ({ value: t, label: t })))
-          );
+          ).catch(() => setOptions([]));
         }
         return input;
       }}

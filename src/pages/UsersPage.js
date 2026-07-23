@@ -338,10 +338,14 @@ export default function UsersPage() {
               <ToolbarButton
                 icon="bi-slash-circle"
                 onClick={async () => {
-                  await api.post("/users/bulk/block", { ids: selected });
-                  toast.success("Blocked");
-                  setSelected([]);
-                  load();
+                  try {
+                    await api.post("/users/bulk/block", { ids: selected });
+                    toast.success("Blocked");
+                    setSelected([]);
+                    load();
+                  } catch {
+                    toast.error("Block failed");
+                  }
                 }}
               >
                 {t("common.block")}
@@ -349,10 +353,14 @@ export default function UsersPage() {
               <ToolbarButton
                 icon="bi-check2-circle"
                 onClick={async () => {
-                  await api.post("/users/bulk/unblock", { ids: selected });
-                  toast.success("Unblocked");
-                  setSelected([]);
-                  load();
+                  try {
+                    await api.post("/users/bulk/unblock", { ids: selected });
+                    toast.success("Unblocked");
+                    setSelected([]);
+                    load();
+                  } catch {
+                    toast.error("Unblock failed");
+                  }
                 }}
               >
                 {t("common.unblock")}
@@ -483,10 +491,14 @@ export default function UsersPage() {
           </Button>
           <Button
             onClick={async () => {
-              await api.put(`/users/${rolesModal.id}/roles`, { roles: roleDraft });
-              setRolesModal(null);
-              toast.success("Roles updated");
-              load();
+              try {
+                await api.put(`/users/${rolesModal.id}/roles`, { roles: roleDraft });
+                setRolesModal(null);
+                toast.success("Roles updated");
+                load();
+              } catch {
+                toast.error("Failed to update roles");
+              }
             }}
           >
             {t("common.save")}
@@ -500,10 +512,14 @@ export default function UsersPage() {
         body={`Delete ${selected.length} user(s)?`}
         onCancel={() => setConfirmDelete(false)}
         onConfirm={async () => {
-          await api.delete("/users/bulk", { data: { ids: selected } });
-          setConfirmDelete(false);
-          setSelected([]);
-          load();
+          try {
+            await api.delete("/users/bulk", { data: { ids: selected } });
+            setConfirmDelete(false);
+            setSelected([]);
+            load();
+          } catch {
+            toast.error("Delete failed");
+          }
         }}
       />
     </div>

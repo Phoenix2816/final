@@ -114,46 +114,61 @@ export default function ProfilePage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await api.get("/cvs", {
-        params: {
-          mine: "true",
-          userId: profileUserId,
-          search: cvSearch,
-          page: cvPage,
-          pageSize: 10,
-        },
-      });
-      setCvs(data.data);
-      setCvTotal(data.pagination.total);
+      try {
+        const { data } = await api.get("/cvs", {
+          params: {
+            mine: "true",
+            userId: profileUserId,
+            search: cvSearch,
+            page: cvPage,
+            pageSize: 10,
+          },
+        });
+        setCvs(data.data);
+        setCvTotal(data.pagination.total);
+      } catch {
+        setCvs([]);
+        setCvTotal(0);
+      }
     })();
   }, [profileUserId, cvSearch, cvPage]);
 
   const openAddAttr = async () => {
     setShowAddAttr(true);
-    const [lib, rec, cats] = await Promise.all([
-      api.get("/attributes", {
-        params: { search: attrSearch, category: attrCategory || undefined, pageSize: 50 },
-      }),
-      api.get("/attributes/recent"),
-      api.get("/attributes/categories"),
-    ]);
-    setLibrary(lib.data.data);
-    setRecent(rec.data);
-    setCategories(cats.data);
+    try {
+      const [lib, rec, cats] = await Promise.all([
+        api.get("/attributes", {
+          params: { search: attrSearch, category: attrCategory || undefined, pageSize: 50 },
+        }),
+        api.get("/attributes/recent"),
+        api.get("/attributes/categories"),
+      ]);
+      setLibrary(lib.data.data);
+      setRecent(rec.data);
+      setCategories(cats.data);
+    } catch {
+      setLibrary([]);
+      setRecent([]);
+      setCategories([]);
+    }
   };
 
   useEffect(() => {
     if (!showAddAttr) return;
     (async () => {
-      const lib = await api.get("/attributes", {
-        params: {
-          prefix: attrSearch || undefined,
-          search: attrSearch || undefined,
-          category: attrCategory || undefined,
-          pageSize: 50,
-        },
-      });
-      setLibrary(lib.data.data);
+      try {
+        const { data } = await api.get("/attributes", {
+          params: {
+            prefix: attrSearch || undefined,
+            search: attrSearch || undefined,
+            category: attrCategory || undefined,
+            pageSize: 50,
+          },
+        });
+        setLibrary(data.data);
+      } catch {
+        setLibrary([]);
+      }
     })();
   }, [attrSearch, attrCategory, showAddAttr]);
 
@@ -842,15 +857,19 @@ export default function ProfilePage() {
                     <ToolbarButton
                       icon="bi-upload"
                       onClick={async () => {
-                        await api.post("/cvs/bulk/publish", { ids: selectedCvs });
-                        toast.success("Published where complete");
-                        setSelectedCvs([]);
-                        setCvPage(1);
-                        const { data } = await api.get("/cvs", {
-                          params: { mine: "true", userId: profileUserId, page: 1, pageSize: 10 },
-                        });
-                        setCvs(data.data);
-                        setCvTotal(data.pagination.total);
+                        try {
+                          await api.post("/cvs/bulk/publish", { ids: selectedCvs });
+                          toast.success("Published where complete");
+                          setSelectedCvs([]);
+                          setCvPage(1);
+                          const { data } = await api.get("/cvs", {
+                            params: { mine: "true", userId: profileUserId, page: 1, pageSize: 10 },
+                          });
+                          setCvs(data.data);
+                          setCvTotal(data.pagination.total);
+                        } catch {
+                          toast.error("Publish failed");
+                        }
                       }}
                     >
                       {t("common.publish")}

@@ -198,12 +198,16 @@ export default function PositionsPage() {
               <ToolbarButton
                 icon="bi-files"
                 onClick={async () => {
-                  for (const id of selected) {
-                    await api.post(`/positions/${id}/duplicate`);
+                  try {
+                    for (const id of selected) {
+                      await api.post(`/positions/${id}/duplicate`);
+                    }
+                    toast.success("Duplicated");
+                    setSelected([]);
+                    load();
+                  } catch {
+                    toast.error("Duplicate failed");
                   }
-                  toast.success("Duplicated");
-                  setSelected([]);
-                  load();
                 }}
               >
                 {t("common.duplicate")}
@@ -222,11 +226,15 @@ export default function PositionsPage() {
         body={`Delete ${selected.length} position(s)?`}
         onCancel={() => setConfirmDelete(false)}
         onConfirm={async () => {
-          await api.delete("/positions", { data: { ids: selected } });
-          setConfirmDelete(false);
-          setSelected([]);
-          toast.success("Deleted");
-          load();
+          try {
+            await api.delete("/positions", { data: { ids: selected } });
+            setConfirmDelete(false);
+            setSelected([]);
+            toast.success("Deleted");
+            load();
+          } catch {
+            toast.error("Delete failed");
+          }
         }}
       />
     </div>
