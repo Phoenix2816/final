@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
-const { User, PasswordReset, RefreshToken } = require("../models");
+const { User, Attribute, UserAttribute, PasswordReset, RefreshToken } = require("../models");
 const { authRequired, signToken, generateRefreshToken, refreshAccessToken, revokeRefreshTokens } = require("../middleware/auth");
 const { sendPasswordChangeEmail } = require("../services/email");
 
@@ -154,6 +154,14 @@ router.post("/register", async (req, res) => {
       emailConfirmToken: token,
       emailConfirmExpires: expiresAt,
     });
+
+    const allAttrs = await Attribute.findAll({ where: { kind: "attribute" } });
+    if (allAttrs.length > 0) {
+      await UserAttribute.bulkCreate(
+        allAttrs.map((a) => ({ userId: user.id, attributeId: a.id, value: null })),
+        { ignoreDuplicates: true }
+      );
+    }
 
     const confirmLink = `${CLIENT_URL}/auth/confirm-email?token=${token}`;
     const message = `Hello ${firstName || email},\n\nClick the link below to confirm your email address:\n${confirmLink}\n\nThis link will expire in 24 hours.\n\nIf you didn't create an account, ignore this email.`;

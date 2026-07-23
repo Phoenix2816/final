@@ -521,6 +521,28 @@ async function seed({ force = true } = {}) {
     },
   ]);
 
+  const baseAttrs = await Attribute.findAll({ where: { kind: "attribute" } });
+  const demoUsers = [admin, recruiter, candidate, candidate2];
+  for (const user of demoUsers) {
+    if (baseAttrs.length > 0) {
+      await UserAttribute.bulkCreate(
+        baseAttrs.map((a) => ({ userId: user.id, attributeId: a.id, value: null })),
+        { ignoreDuplicates: true }
+      );
+    }
+  }
+
+  if (!admin.skills?.length) admin.skills = ["Vue", "JavaScript", "TypeScript", "C++", "c#", "Amazon SQS", "PyTest"];
+  await admin.save();
+
+  const candidate2Skills = ["React", "Python", "PyTorch", "Django", "PostgreSQL", "Docker"];
+  const candidate2Current = candidate2.skills || [];
+  const mergedCandidate2 = [...new Set([...candidate2Skills, ...candidate2Current])];
+  if (mergedCandidate2.length !== candidate2Current.length) {
+    candidate2.skills = mergedCandidate2;
+    await candidate2.save();
+  }
+
   console.log("Seed complete.");
   console.log("Demo accounts (password: password123):");
   console.log("  admin@cv.local");
