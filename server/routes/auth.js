@@ -187,7 +187,6 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     if (user.isBlocked) return res.status(403).json({ error: "User is blocked" });
-    if (!user.emailConfirmed) return res.status(403).json({ error: "emailNotConfirmed" });
 
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });

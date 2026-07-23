@@ -309,13 +309,17 @@ export default function ProfilePage() {
   };
 
   const addProject = async () => {
-    const { data } = await api.post("/projects", {
-      userId: profileUserId,
-      name: "New Project",
-      currentlyWorking: true,
-      order: projects.length,
-    });
-    setProjects((p) => [data, ...p]);
+    try {
+      const { data } = await api.post("/projects", {
+        userId: profileUserId,
+        name: "New Project",
+        currentlyWorking: true,
+        order: projects.length,
+      });
+      setProjects((p) => [data, ...p]);
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to add project");
+    }
   };
 
   const reorderProjects = async (orderedIds) => {
@@ -741,8 +745,10 @@ export default function ProfilePage() {
               </div>
               {canEdit && (
                 <Button size="sm" onClick={addProject}>
-                  <i className="bi bi-plus-lg me-1" />
-                  {t("profile.addProject")}
+                  <span className="d-inline-flex align-items-center gap-1">
+                    <i className="bi bi-plus-lg" />
+                    {t("profile.addProject")}
+                  </span>
                 </Button>
               )}
             </div>
@@ -754,8 +760,10 @@ export default function ProfilePage() {
                 action={
                   canEdit && (
                     <Button size="sm" variant="primary" onClick={addProject}>
-                      <i className="bi bi-plus-lg me-1" />
-                      {t("profile.addProject")}
+                      <span className="d-inline-flex align-items-center gap-1">
+                        <i className="bi bi-plus-lg" />
+                        {t("profile.addProject")}
+                      </span>
                     </Button>
                   )
                 }
@@ -927,8 +935,14 @@ export default function ProfilePage() {
                 if (!CATEGORY_ORDER.includes(cat)) orderedCats.push({ category: cat, items: grouped[cat] });
               }
               return orderedCats.map(({ category, items }) => {
-                const catKey = category.toLowerCase().replace(/\s+/g, "");
-                const categoryLabel = t(`profile.categories.${catKey}`) || category;
+              const catKey = category.toLowerCase().replace(/[^a-z0-9]+/g, "");
+   const categoryLabel = (() => {
+     const translated = t(`profile.categories.${catKey}`);
+     if (translated !== `profile.categories.${catKey}`) return translated;
+     return category
+       .replace(/\s*\/\s*/g, " / ")
+       .replace(/\b\w/g, (c) => c.toUpperCase());
+   })();
                 const icon = CATEGORY_ICONS[category] || "bi-collection";
                 return (
                   <div key={category} className="attr-category-group">
