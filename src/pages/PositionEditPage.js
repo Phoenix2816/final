@@ -167,9 +167,14 @@ export default function PositionEditPage() {
                   value={form.visibility}
                   onChange={(e) => patch({ visibility: e.target.value })}
                 >
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
+                  <option value="public">{t("positions.public", "Public")}</option>
+                  <option value="private">{t("positions.private", "Private")}</option>
                 </Form.Select>
+                <div className="form-text">
+                  {form.visibility === "public"
+                    ? t("positions.visibilityPublic")
+                    : t("positions.visibilityPrivate")}
+                </div>
               </div>
               <div className="col-md-4">
                 <Form.Label htmlFor="position-maxProjects">{t("positions.maxProjects")}</Form.Label>
