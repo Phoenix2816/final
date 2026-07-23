@@ -246,8 +246,11 @@ export default function CVPage() {
     .map((rid) => attribFields.find((f) => f.attributeId === rid))
     .filter(Boolean);
 
-  const initials = `${payload.candidate.firstName || ""} ${payload.candidate.lastName || ""}`
+  const initialName = `${payload.candidate?.firstName || ""} ${payload.candidate?.lastName || ""}`
     .trim()
+    || payload.candidate?.email
+    || "";
+  const initials = initialName
     .split(" ")
     .map((p) => p[0])
     .join("")

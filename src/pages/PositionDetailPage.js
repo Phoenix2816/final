@@ -112,7 +112,8 @@ export default function PositionDetailPage() {
       render: (r) => {
         const name =
           `${r.candidate?.firstName || ""} ${r.candidate?.lastName || ""}`.trim() ||
-          r.candidate?.email;
+          r.candidate?.email ||
+          "User";
         const initials = name
           .split(" ")
           .map((p) => p[0])

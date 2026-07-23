@@ -112,9 +112,10 @@ export default function DiscussionPanel({ positionId }) {
         {messages.map((m) => {
           const name =
             m.author
-              ? `${m.author.firstName || ""} ${m.author.lastName || ""}`.trim() || m.author.email
+              ? `${m.author.firstName || ""} ${m.author.lastName || ""}`.trim() || m.author?.email
               : "User";
-          const initials = name
+          const safeName = name || "User";
+          const initials = safeName
             .split(" ")
             .map((p) => p[0])
             .join("")
