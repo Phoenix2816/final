@@ -614,8 +614,14 @@ export default function ProfilePage() {
             {/* Attributes grouped by category */}
             {groupedAttributes.map(({ category, items }) => {
               const icon = CATEGORY_ICONS[category] || "bi-collection";
-              const catKey = category.toLowerCase().replace(/\s+/g, "");
-              const categoryLabel = t(`profile.categories.${catKey}`) || category;
+              const catKey = category.toLowerCase().replace(/[^a-z0-9]+/g, "");
+              const categoryLabel = (() => {
+                const translated = t(`profile.categories.${catKey}`);
+                if (translated !== `profile.categories.${catKey}`) return translated;
+                return category
+                  .replace(/\s*\/\s*/g, " / ")
+                  .replace(/\b\w/g, (c) => c.toUpperCase());
+              })();
               const isTech = category === "Technologies";
               return (
                 <div key={category} className="info-section info-section-category">

@@ -169,6 +169,9 @@
       "mobile": "Mobile",
       "aimachinelearning": "AI / Machine Learning",
       "cms": "CMS",
+      "messagebrokers": "Message Brokers",
+      "buildtools": "Build Tools",
+      "operatingsystems": "Operating Systems",
       "profile": "Profile"
     },
     "changePassword": "Change Password",

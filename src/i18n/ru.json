@@ -152,6 +152,9 @@
       "mobile": "Мобильная разработка",
       "aimachinelearning": "ИИ / Машинное обучение",
       "cms": "CMS",
+      "messagebrokers": "Message Brokers",
+      "buildtools": "Build Tools",
+      "operatingsystems": "Operating Systems",
       "profile": "Профиль"
     },
     "changePassword": "Сменить пароль",
