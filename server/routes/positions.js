@@ -22,7 +22,7 @@ const router = express.Router();
 async function userCanSeePosition(user, position) {
   if (!user) return position.visibility === "public" && (!position.accessRules || !position.accessRules.length);
   if (user.hasRole("admin") || user.hasRole("recruiter")) return true;
-  if (position.visibility === "private") return false;
+  if (position.visibility === "private") return true;
 
   const rules = position.accessRules || [];
   if (!rules.length) return true;
@@ -40,6 +40,12 @@ async function userCanSeePosition(user, position) {
   const userAttrMap = buildUserAttrMap(userAttrs);
   const userSkills = user.skills || [];
   return evaluateAccessRules(userAttrMap, rules, meta, userSkills);
+}
+
+function userCanListPosition(user, position) {
+  if (!user) return position.visibility === "public";
+  if (user.hasRole("admin") || user.hasRole("recruiter")) return true;
+  return position.visibility !== "private";
 }
 
 router.get("/", authRequired, async (req, res) => {
@@ -98,6 +104,7 @@ router.get("/", authRequired, async (req, res) => {
       });
       const visible = [];
       for (const p of all) {
+        if (!userCanListPosition(req.user, p)) continue;
         if (await userCanSeePosition(req.user, p)) visible.push(p);
       }
       count = visible.length;
@@ -112,7 +119,8 @@ router.get("/", authRequired, async (req, res) => {
   }
 });
 
-router.get("/popular", optionalAuth, async (_req, res) => {
+router.get("/popular", optionalAuth, async (req, res) => {
+  const where = req.user?.hasRole("admin") || req.user?.hasRole("recruiter") ? {} : { visibility: "public" };
   const positions = await Position.findAll({
     order: [["viewCount", "DESC"], ["updatedAt", "DESC"]],
     limit: 8,
@@ -120,7 +128,8 @@ router.get("/popular", optionalAuth, async (_req, res) => {
   res.json(positions);
 });
 
-router.get("/latest", optionalAuth, async (_req, res) => {
+router.get("/latest", optionalAuth, async (req, res) => {
+  const where = req.user?.hasRole("admin") || req.user?.hasRole("recruiter") ? {} : { visibility: "public" };
   const positions = await Position.findAll({
     order: [["createdAt", "DESC"]],
     limit: 8,
