@@ -13,9 +13,11 @@ import { formatCategory } from "../../utils/categoryHelpers";
 // Resolve a possibly-relative upload path (e.g. "/uploads/x.png") to an
 // absolute URL so the browser can load it from the API server.
 export function resolveImageUrl(value) {
-  if (!value || typeof value !== "string") return value;
-  if (/^(https?:|data:)/i.test(value)) return value;
-  return `${API_URL}${value.startsWith("/") ? "" : "/"}${value}`;
+  if (!value) return value;
+  const url = typeof value === "string" ? value : value?.url;
+  if (!url || typeof url !== "string") return url;
+  if (/^(https?:|data:)/i.test(url)) return url;
+  return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
 export function AttributeValueInput({ type, value, onChange, options = [], readOnly, missing }) {
@@ -91,7 +93,24 @@ export function AttributeValueInput({ type, value, onChange, options = [], readO
         </div>
       );
     case "image":
-      return <ImageUpload value={value} onChange={onChange} missing={missing} />;
+      return (
+        <div>
+          <ImageUpload
+            value={typeof value === "string" ? value : value?.url || ""}
+            onChange={(url) => onChange({ url, caption: typeof value === "string" ? "" : value?.caption || "" })}
+            missing={missing}
+          />
+          <Form.Control
+            className="mt-2"
+            size="sm"
+            placeholder="Certificate info..."
+            value={typeof value === "string" ? "" : value?.caption || ""}
+            onChange={(e) =>
+              onChange({ url: typeof value === "string" ? value : value?.url || "", caption: e.target.value })
+            }
+          />
+        </div>
+      );
     default:
       return (
         <Form.Control
@@ -111,10 +130,17 @@ export function AttributeValueDisplay({ type, value, missing }) {
   if (type === "markdown") return <ReactMarkdown>{String(value)}</ReactMarkdown>;
   if (type === "period") return <span>{value?.from || "?"} → {value?.to || "?"}</span>;
   if (type === "image") {
-    return value ? (
-      <img src={resolveImageUrl(value)} alt="" className="attr-image-thumb" />
-    ) : (
-      <span className="text-danger">Missing</span>
+    const url = typeof value === "string" ? value : value?.url;
+    const caption = typeof value === "string" ? "" : value?.caption;
+    return (
+      <div>
+        {url ? (
+          <img src={resolveImageUrl(url)} alt={caption || "Certificate"} className="attr-image-thumb" />
+        ) : (
+          <span className="text-danger">Missing</span>
+        )}
+        {caption && <div className="small text-muted mt-1">{caption}</div>}
+      </div>
     );
   }
   return <span>{String(value)}</span>;
@@ -205,7 +231,7 @@ export function ImageUpload({ value, onChange, missing }) {
 
   return (
     <div>
-      {value && !value.startsWith("data:") && (
+      {value && typeof value === "string" && !value.startsWith("data:") && (
         <img src={resolveImageUrl(value)} alt="" className="attr-image-preview mb-2" />
       )}
       <div

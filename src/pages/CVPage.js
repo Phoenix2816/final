@@ -57,6 +57,10 @@ function fieldIcon(field) {
 function formatValue(field, value, t) {
   if (field.type === "boolean") return value ? t("common.yes") : t("common.no");
   if (field.type === "period") return `${value?.from || "?"} → ${value?.to || "?"}`;
+  if (field.type === "image") {
+    const caption = typeof value === "string" ? "" : value?.caption;
+    return caption || "";
+  }
   if (field.type === "dropdown" && field.options?.length) {
     const opt = field.options.find((o) => o.value === value || o === value);
     return opt ? opt.label || opt : value;
