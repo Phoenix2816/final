@@ -533,6 +533,24 @@
   margin-bottom: 0.75rem;
 }
 
+.role-card {
+  border: 1px solid var(--tf-border);
+  border-radius: var(--tf-radius);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.role-card:hover {
+  border-color: var(--tf-accent);
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.08);
+}
+
+.role-card-icon {
+  font-size: 1.75rem;
+  color: var(--tf-accent);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
 .auth-divider {
   display: flex;
   align-items: center;

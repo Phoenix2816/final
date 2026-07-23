@@ -16,9 +16,13 @@ export default function OAuthCallbackPage() {
       return;
     }
     loginWithToken(token)
-      .then(() => {
-        toast.success("Signed in");
-        navigate("/");
+      .then((user) => {
+        if (user?.roles?.length === 0) {
+          navigate("/choose-role");
+        } else {
+          toast.success("Signed in");
+          navigate("/");
+        }
       })
       .catch(() => {
         toast.error("OAuth failed");

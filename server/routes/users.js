@@ -290,4 +290,24 @@ router.post("/", authRequired, requireRoles("admin"), async (req, res) => {
   }
 });
 
+router.post("/me/role", authRequired, async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (role !== "candidate" && role !== "recruiter") {
+      return res.status(400).json({ error: "Role must be candidate or recruiter" });
+    }
+    if ((req.user.roles || []).length > 0) {
+      return res.status(400).json({ error: "Role already set" });
+    }
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    user.roles = [role];
+    await user.save();
+    res.json(user.toSafeJSON());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to set role" });
+  }
+});
+
 module.exports = router;

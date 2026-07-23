@@ -14,6 +14,7 @@ export default function RegisterPage() {
     password: "",
     firstName: "",
     lastName: "",
+    role: "candidate",
   });
   const [loading, setLoading] = useState(false);
 
@@ -88,6 +89,19 @@ export default function RegisterPage() {
               minLength={6}
               autoComplete="new-password"
             />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label htmlFor="register-role">{t("auth.registerAs")}</Form.Label>
+            <Form.Select
+              id="register-role"
+              name="role"
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              required
+            >
+              <option value="candidate">{t("users.roleLabels.candidate")}</option>
+              <option value="recruiter">{t("users.roleLabels.recruiter")}</option>
+            </Form.Select>
           </Form.Group>
           <Button type="submit" className="w-100" disabled={loading}>
             {t("auth.signUp")}

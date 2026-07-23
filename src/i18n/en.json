@@ -47,7 +47,12 @@
     "confirmEmailInvalid": "Invalid confirmation link.",
     "emailNotConfirmed": "Please confirm your email before logging in.",
     "accountNotFound": "No account found with this email.",
-    "invalidPassword": "Incorrect password."
+    "invalidPassword": "Incorrect password.",
+    "registerAs": "I am a",
+    "chooseRoleTitle": "Choose your role",
+    "chooseRoleHint": "Select the option that best describes you.",
+    "roleCandidate": "Candidate",
+    "roleRecruiter": "Recruiter"
   },
   "common": {
     "search": "Search…",

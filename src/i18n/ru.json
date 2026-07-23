@@ -47,7 +47,12 @@
     "confirmEmailInvalid": "Неверная ссылка для подтверждения.",
     "emailNotConfirmed": "Подтвердите email перед входом.",
     "accountNotFound": "Аккаунт с таким email не найден.",
-    "invalidPassword": "Неверный пароль."
+    "invalidPassword": "Неверный пароль.",
+    "registerAs": "Я",
+    "chooseRoleTitle": "Выберите роль",
+    "chooseRoleHint": "Выберите вариант, который лучше всего описывает вас.",
+    "roleCandidate": "Кандидат",
+    "roleRecruiter": "Рекрутер"
   },
   "common": {
     "search": "Поиск…",

@@ -14,6 +14,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
+import ChooseRolePage from "./pages/ChooseRolePage";
 
 function ProtectedRoute({ roles }) {
   const { user, loading, hasRole } = useAuth();
@@ -69,6 +70,10 @@ export default function App() {
 
         <Route element={<ProtectedRoute roles={["admin"]} />}>
           <Route path="/users" element={<UsersPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/choose-role" element={<ChooseRolePage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

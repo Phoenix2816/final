@@ -45,7 +45,7 @@ function configurePassport() {
                 firstName: profile.name?.givenName || profile.displayName || "User",
                 lastName: profile.name?.familyName || "",
                 photo: profile.photos?.[0]?.value || null,
-                roles: ["candidate"],
+                roles: [],
                 emailConfirmed: true,
               });
             } else {
@@ -98,7 +98,7 @@ function configurePassport() {
                 firstName: names[0] || "User",
                 lastName: names.slice(1).join(" ") || "",
                 photo: profile.photos?.[0]?.value || null,
-                roles: ["candidate"],
+                roles: [],
                 emailConfirmed: true,
               });
             } else {
@@ -133,12 +133,15 @@ router.get("/providers", (_req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName, role } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password required" });
     }
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(409).json({ error: "Email already exists" });
+
+    const validRoles = ["candidate", "recruiter"];
+    const userRole = validRoles.includes(role) ? role : "candidate";
 
     const passwordHash = await bcrypt.hash(password, 10);
     const token = crypto.randomBytes(32).toString("hex");
@@ -149,7 +152,7 @@ router.post("/register", async (req, res) => {
       passwordHash,
       firstName: firstName || "",
       lastName: lastName || "",
-      roles: ["candidate"],
+      roles: [userRole],
       emailConfirmed: false,
       emailConfirmToken: token,
       emailConfirmExpires: expiresAt,
