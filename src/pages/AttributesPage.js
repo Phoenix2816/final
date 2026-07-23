@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import api from "../api/client";
 import DataTable, { ToolbarButton } from "../components/common/DataTable";
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import { formatCategory } from "../utils/categoryHelpers";
 
 const TYPES = ["string", "markdown", "number", "date", "period", "boolean", "image", "dropdown"];
 const KINDS = ["attribute", "technology"];
@@ -408,7 +409,7 @@ export default function AttributesPage() {
               <div className="detail-grid">
                 <div className="detail-item">
                   <div className="detail-label">{t("attributes.category")}</div>
-                  <div className="detail-value">{drawerItem.category}</div>
+                  <div className="detail-value">{formatCategory(drawerItem.category, t)}</div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">{t("attributes.type")}</div>

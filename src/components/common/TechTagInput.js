@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { TagPill } from "./TechTag";
+import { useTranslation } from "react-i18next";
+import { formatCategory } from "../../utils/categoryHelpers";
 
 // Highlight the matched portion of a suggestion against the current query.
 function highlight(text, query) {
@@ -37,6 +39,7 @@ export default function TechTagInput({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [category, setCategory] = useState(null);
+  const { t } = useTranslation();
   const wrapRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
@@ -207,7 +210,7 @@ export default function TechTagInput({
                 setCategory(cat);
               }}
             >
-              {cat}
+              {formatCategory(cat, t)}
             </button>
           ))}
         </div>
@@ -218,7 +221,7 @@ export default function TechTagInput({
           {Object.keys(filteredCategories).length > 0 ? (
             Object.entries(filteredCategories).map(([cat, items]) => (
               <div key={cat} className="tech-tag-group">
-                <div className="tech-tag-group-title">{cat}</div>
+                <div className="tech-tag-group-title">{formatCategory(cat, t)}</div>
                 <ul className="tech-tag-group-list">
                   {items.map((t) => renderOption(t, flatOptions.indexOf(t)))}
                 </ul>
@@ -248,7 +251,7 @@ export default function TechTagInput({
           )}
           <div className="tech-tag-group">
             <div className="tech-tag-group-title">
-              {category ? category : "Popular Technologies"}
+              {category ? formatCategory(category, t) : "Popular Technologies"}
             </div>
             <ul className="tech-tag-group-list">
               {(category ? categories[category] || [] : popular)

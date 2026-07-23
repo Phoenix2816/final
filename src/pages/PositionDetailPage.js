@@ -11,6 +11,7 @@ import DataTable from "../components/common/DataTable";
 import HeartLike from "../components/common/HeartLike";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import EmptyState from "../components/common/EmptyState";
+import { formatCategory } from "../utils/categoryHelpers";
 
 const ATTR_ICONS = {
   boolean: "bi-toggle-on",
@@ -225,7 +226,7 @@ export default function PositionDetailPage() {
                         <div className="attr-card-meta">
                           <span className="cat-chip">
                             <i className={`bi ${CATEGORY_ICONS[a.category] || "bi-bookmark"} me-1`} />
-                            {a.category}
+                             {formatCategory(a.category, t)}
                           </span>
                           <span className="type-chip">{a.type}</span>
                         </div>

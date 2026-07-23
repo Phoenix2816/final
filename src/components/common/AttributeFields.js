@@ -5,8 +5,10 @@ import MDEditor from "@uiw/react-md-editor";
 import ReactMarkdown from "react-markdown";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
+import { useTranslation } from "react-i18next";
 import api, { API_URL } from "../../api/client";
 import toast from "react-hot-toast";
+import { formatCategory } from "../../utils/categoryHelpers";
 
 // Resolve a possibly-relative upload path (e.g. "/uploads/x.png") to an
 // absolute URL so the browser can load it from the API server.
@@ -255,9 +257,10 @@ export function TagInput({ value = [], onChange, loadOptions, placeholder = "Tag
 }
 
 export function AttributePicker({ attributes, value, onChange, isMulti = true }) {
+  const { t } = useTranslation();
   const options = (attributes || []).map((a) => ({
     value: a.id,
-    label: `${a.category} / ${a.name}`,
+    label: `${formatCategory(a.category, t)} / ${a.name}`,
   }));
   return (
     <Select

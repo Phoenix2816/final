@@ -16,6 +16,7 @@ import HeartLike from "../components/common/HeartLike";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import ReactMarkdown from "react-markdown";
 import { tagColor } from "../components/common/TechTag";
+import { formatCategory } from "../utils/categoryHelpers";
 
 const CATEGORY_ICONS = {
   Languages: "bi-globe",
@@ -614,14 +615,7 @@ export default function ProfilePage() {
             {/* Attributes grouped by category */}
             {groupedAttributes.map(({ category, items }) => {
               const icon = CATEGORY_ICONS[category] || "bi-collection";
-              const catKey = category.toLowerCase().replace(/[^a-z0-9]+/g, "");
-              const categoryLabel = (() => {
-                const translated = t(`profile.categories.${catKey}`);
-                if (translated !== `profile.categories.${catKey}`) return translated;
-                return category
-                  .replace(/\s*\/\s*/g, " / ")
-                  .replace(/\b\w/g, (c) => c.toUpperCase());
-              })();
+              const categoryLabel = formatCategory(category, t);
               const isTech = category === "Technologies";
               return (
                 <div key={category} className="info-section info-section-category">
@@ -921,7 +915,7 @@ export default function ProfilePage() {
                 <option value="">{t("common.all")}</option>
                 {categories.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {formatCategory(c, t)}
                   </option>
                 ))}
               </Form.Select>
@@ -941,14 +935,7 @@ export default function ProfilePage() {
                 if (!CATEGORY_ORDER.includes(cat)) orderedCats.push({ category: cat, items: grouped[cat] });
               }
               return orderedCats.map(({ category, items }) => {
-              const catKey = category.toLowerCase().replace(/[^a-z0-9]+/g, "");
-   const categoryLabel = (() => {
-     const translated = t(`profile.categories.${catKey}`);
-     if (translated !== `profile.categories.${catKey}`) return translated;
-     return category
-       .replace(/\s*\/\s*/g, " / ")
-       .replace(/\b\w/g, (c) => c.toUpperCase());
-   })();
+              const categoryLabel = formatCategory(category, t);
                 const icon = CATEGORY_ICONS[category] || "bi-collection";
                 return (
                   <div key={category} className="attr-category-group">
@@ -964,7 +951,7 @@ export default function ProfilePage() {
                         <button key={a.id} type="button" className="attr-category-item" onClick={() => addAttr(a)}>
                           <span>
                             <span className="attr-category-item-name">{highlightMatch(a.name, attrSearch)}</span>
-                            <div className="attr-category-item-meta">{a.category} · {a.type}</div>
+                             <div className="attr-category-item-meta">{formatCategory(a.category, t)} · {a.type}</div>
                           </span>
                           <i className="bi bi-plus-lg text-muted" />
                         </button>

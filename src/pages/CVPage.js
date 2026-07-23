@@ -13,6 +13,7 @@ import HeartLike from "../components/common/HeartLike";
 import { AttributeValueInput } from "../components/common/AttributeFields";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import { tagColor } from "../components/common/TechTag";
+import { formatCategory } from "../utils/categoryHelpers";
 
 const SKILL_TYPES = new Set(["technology", "string"]);
 const PERSONAL_KEYS = new Set(["firstName", "lastName", "photo"]);
@@ -452,7 +453,7 @@ export default function CVPage() {
               </h3>
               {skillGroups.map(([cat, fields]) => (
                 <div key={cat} className="mb-3">
-                  <h6 className="cv-skill-category">{cat}</h6>
+                  <h6 className="cv-skill-category">{formatCategory(cat, t)}</h6>
                   <div className="cv-skill-badges">
                     {fields.map((f) => {
                       const value = getValue(f);
