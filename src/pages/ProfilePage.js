@@ -403,14 +403,12 @@ export default function ProfilePage() {
       if (!groups[cat]) groups[cat] = [];
       groups[cat].push({ ...attr, _isAttr: true });
     }
-    if (skills.length > 0) {
-      groups["Technologies"] = skills.map((s) => ({
-        _isSkill: true,
-        skillName: s,
-        attributeId: `skill-${s}`,
-        attribute: { name: s, type: "technology", category: "Technologies" },
-      }));
-    }
+    groups["Technologies"] = skills.map((s) => ({
+      _isSkill: true,
+      skillName: s,
+      attributeId: `skill-${s}`,
+      attribute: { name: s, type: "technology", category: "Technologies" },
+    }));
     const ordered = [];
     const techOrdered = [];
     for (const cat of CATEGORY_ORDER) {

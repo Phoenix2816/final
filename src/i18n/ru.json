@@ -45,7 +45,9 @@
     "confirmEmailSuccess": "Email подтверждён. Теперь вы можете войти.",
     "confirmEmailExpired": "Срок действия ссылки истёк. Зарегистрируйтесь заново.",
     "confirmEmailInvalid": "Неверная ссылка для подтверждения.",
-    "emailNotConfirmed": "Подтвердите email перед входом."
+    "emailNotConfirmed": "Подтвердите email перед входом.",
+    "accountNotFound": "Аккаунт с таким email не найден.",
+    "invalidPassword": "Неверный пароль."
   },
   "common": {
     "search": "Поиск…",

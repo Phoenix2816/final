@@ -45,7 +45,9 @@
     "confirmEmailSuccess": "Your email has been confirmed. You can now log in.",
     "confirmEmailExpired": "Confirmation link expired. Please register again.",
     "confirmEmailInvalid": "Invalid confirmation link.",
-    "emailNotConfirmed": "Please confirm your email before logging in."
+    "emailNotConfirmed": "Please confirm your email before logging in.",
+    "accountNotFound": "No account found with this email.",
+    "invalidPassword": "Incorrect password."
   },
   "common": {
     "search": "Search…",

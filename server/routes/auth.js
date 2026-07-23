@@ -191,13 +191,16 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
-    if (!user || !user.passwordHash) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    if (!user) {
+      return res.status(401).json({ error: "accountNotFound" });
+    }
+    if (!user.passwordHash) {
+      return res.status(401).json({ error: "accountNotFound" });
     }
     if (user.isBlocked) return res.status(403).json({ error: "User is blocked" });
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+    if (!ok) return res.status(401).json({ error: "invalidPassword" });
 
     user.lastLoginAt = new Date();
     await user.save();
