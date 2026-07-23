@@ -167,6 +167,13 @@ async function seed({ force = true } = {}) {
       type: "image",
       createdById: recruiter.id,
     },
+    {
+      category: "Profile",
+      name: "Additional Information",
+      description: "Any extra details you want to share",
+      type: "markdown",
+      createdById: recruiter.id,
+    },
   ]);
 
   const techs = await Attribute.bulkCreate([
