@@ -79,14 +79,32 @@ router.get("/", authRequired, async (req, res) => {
     });
     likes.forEach((l) => likedIds.add(l.cvId));
 
+    let rows = docs.map((r) => ({
+      ...r.toJSON(),
+      likedByMe: likedIds.has(r.id),
+      canLike: r.userId !== req.user.id && r.status === "published",
+    }));
+
+    if (!isStaff) {
+      const visible = [];
+      for (const row of rows) {
+        const posId = row.positionId || row.position?.id;
+        if (!posId) {
+          visible.push(row);
+          continue;
+        }
+        const position = await Position.findByPk(posId);
+        if (!position || await userCanSeePosition(req.user, position)) {
+          visible.push(row);
+        }
+      }
+      rows = visible;
+    }
+
     res.json(
       paginatedResult(
-        docs.map((r) => ({
-          ...r.toJSON(),
-          likedByMe: likedIds.has(r.id),
-          canLike: r.userId !== req.user.id && r.status === "published",
-        })),
-        total,
+        rows,
+        isStaff ? total : rows.length,
         page,
         pageSize
       )
@@ -139,6 +157,12 @@ router.get("/:id", authRequired, async (req, res) => {
     if (!isOwner && isStaff && cv.status !== "published" && !req.user.hasRole("admin")) {
       return res.status(403).json({ error: "CV is not published" });
     }
+    if (isOwner && !isStaff) {
+      const position = await Position.findByPk(cv.positionId);
+      if (!position || !(await userCanSeePosition(req.user, position))) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+    }
 
     const payload = await generateCVPayload(cv);
     const like = await CVLike.findOne({
@@ -160,6 +184,12 @@ router.put("/:id", authRequired, async (req, res) => {
     if (!cv) return res.status(404).json({ error: "Not found" });
     if (cv.userId !== req.user.id && !req.user.hasRole("admin")) {
       return res.status(403).json({ error: "Forbidden" });
+    }
+    if (cv.userId === req.user.id && !req.user.hasRole("admin")) {
+      const position = await Position.findByPk(cv.positionId);
+      if (!position || !(await userCanSeePosition(req.user, position))) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
     }
 
     if (req.body.version != null && Number(req.body.version) !== Number(cv.version)) {
@@ -277,6 +307,12 @@ router.post("/:id/publish", authRequired, async (req, res) => {
     if (cv.userId !== req.user.id && !req.user.hasRole("admin")) {
       return res.status(403).json({ error: "Forbidden" });
     }
+    if (cv.userId === req.user.id && !req.user.hasRole("admin")) {
+      const position = await Position.findByPk(cv.positionId);
+      if (!position || !(await userCanSeePosition(req.user, position))) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+    }
 
     const payload = await generateCVPayload(cv);
     if (!payload.complete) {
@@ -303,6 +339,12 @@ router.post("/:id/unpublish", authRequired, async (req, res) => {
     if (cv.userId !== req.user.id && !req.user.hasRole("admin")) {
       return res.status(403).json({ error: "Forbidden" });
     }
+    if (cv.userId === req.user.id && !req.user.hasRole("admin")) {
+      const position = await Position.findByPk(cv.positionId);
+      if (!position || !(await userCanSeePosition(req.user, position))) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+    }
 
     cv.status = "draft";
     cv.version = (cv.version || 1) + 1;
@@ -322,6 +364,13 @@ router.post("/bulk/publish", authRequired, async (req, res) => {
       const cv = await CV.findByPk(id);
       if (!cv) continue;
       if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
+      if (cv.userId === req.user.id && !req.user.hasRole("admin")) {
+        const position = await Position.findByPk(cv.positionId);
+        if (!position || !(await userCanSeePosition(req.user, position))) {
+          results.push({ id, error: "forbidden" });
+          continue;
+        }
+      }
       const payload = await generateCVPayload(cv);
       if (!payload.complete) {
         results.push({ id, error: "incomplete" });
