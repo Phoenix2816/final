@@ -2130,10 +2130,6 @@
   padding-top: 1rem;
 }
 
-/* ===== Page transitions ===== */
-.page-shell > * {
-  animation: rise 0.35s ease both;
-}
 
 /* ===== Navbar ===== */
 .app-navbar {

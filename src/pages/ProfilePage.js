@@ -433,7 +433,7 @@ export default function ProfilePage() {
 
   const suggestedAttrs = useMemo(() => {
     const existingIds = new Set(attributes.map((a) => a.attributeId));
-    return library.filter((a) => SUGGESTED_ATTRS.includes(a.name) && !existingIds.includes(a.id)).slice(0, 6);
+    return library.filter((a) => SUGGESTED_ATTRS.includes(a.name) && !existingIds.has(a.id)).slice(0, 6);
   }, [library, attributes]);
 
   const highlightMatch = (text, query) => {

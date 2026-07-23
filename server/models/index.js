@@ -52,8 +52,9 @@ DiscussionMessage.belongsTo(Position, { foreignKey: "positionId" });
 DiscussionMessage.belongsTo(User, { foreignKey: "userId", as: "author" });
 
 User.hasMany(RecentAttribute, { foreignKey: "userId", onDelete: "CASCADE" });
-RecentAttribute.belongsTo(User, { foreignKey: "userId", as: "attribute" });
-Attribute.hasMany(RecentAttribute, { foreignKey: "createdById", as: "creator" });
+RecentAttribute.belongsTo(User, { foreignKey: "userId" });
+Attribute.hasMany(RecentAttribute, { foreignKey: "attributeId" });
+RecentAttribute.belongsTo(Attribute, { foreignKey: "attributeId", as: "attribute" });
 
 User.hasMany(PasswordReset, { foreignKey: "userId", onDelete: "CASCADE" });
 PasswordReset.belongsTo(User, { foreignKey: "userId" });
