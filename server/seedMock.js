@@ -257,7 +257,7 @@ async function seedMock() {
       name: "English Level",
       description: "Spoken English proficiency",
       type: "dropdown",
-      options: ["A2", "B1", "B2", "C1", "C2"],
+      options: ["A1", "A2", "B1", "B2", "C1", "C2"],
     },
     { category: "Technical", name: "GitHub Profile", description: "Link to GitHub", type: "string" },
     { category: "Work Preferences", name: "Salary Expectation (USD)", description: "Expected annual salary", type: "number" },

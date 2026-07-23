@@ -120,9 +120,10 @@ async function start() {
 
     try {
       const { User } = require("./models");
+      const { Op } = require("sequelize");
       await User.update(
         { emailConfirmed: true },
-        { where: { emailConfirmed: { [require("sequelize").Op.or]: [{ emailConfirmed: false }, { emailConfirmed: null }] } } }
+        { where: { emailConfirmed: { [Op.or]: [false, null] } } }
       );
     } catch (err) {
       console.warn("Email confirmation migration skipped:", err.message);
