@@ -41,7 +41,7 @@
     "noAccount": "No account?",
     "hasAccount": "Already registered?",
     "demoHint": "Demo: candidate@cv.local / password123",
-    "registerSuccess": "Account created. Please check your email to confirm.",
+    "registerSuccess": "Account created. Please check your email to confirm. If you don't see it, check your spam folder.",
     "confirmEmailSuccess": "Your email has been confirmed. You can now log in.",
     "confirmEmailExpired": "Confirmation link expired. Please register again.",
     "confirmEmailInvalid": "Invalid confirmation link.",
@@ -162,7 +162,7 @@
     "newPassword": "New password",
     "confirmNewPassword": "Confirm new password",
     "requestPasswordChange": "Send confirmation email",
-    "passwordEmailSent": "Confirmation email sent. Please check your inbox.",
+    "passwordEmailSent": "Confirmation email sent. Please check your inbox. If you don't see it, check your spam folder.",
     "passwordChangedSuccess": "Password changed successfully",
     "passwordChangeFailed": "Password change failed"
   },

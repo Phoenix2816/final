@@ -15,7 +15,7 @@ async function sendPasswordChangeEmail(toEmail, userName, confirmLink) {
     return;
   }
 
-  const message = `Hello ${userName || toEmail},\n\nClick the link below to confirm your password change:\n${confirmLink}\n\nThis link will expire in 15 minutes.\n\nIf you didn't request this, ignore this email.`;
+  const message = `Hello ${userName || toEmail},\n\nClick the link below to confirm your password change:\n${confirmLink}\n\nThis link will expire in 15 minutes.\n\nIf you didn't request this, ignore this email.\n\nNote: If you don't see this email in your inbox, please check your spam folder.`;
 
   try {
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
