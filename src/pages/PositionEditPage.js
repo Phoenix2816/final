@@ -216,14 +216,20 @@ export default function PositionEditPage() {
               <Button
                 size="sm"
                 variant="outline-secondary"
-                onClick={() =>
+                onClick={() => {
+                  const firstAttr = attributes[0];
                   patch({
                     accessRules: [
                       ...(form.accessRules || []),
-                      { attributeId: attributes[0]?.id, operator: "=", value: "", type: "string" },
+                      {
+                        attributeId: firstAttr?.id,
+                        operator: "=",
+                        value: "",
+                        type: firstAttr?.type || "string",
+                      },
                     ],
-                  })
-                }
+                  });
+                }}
               >
                 <i className="bi bi-plus" />
               </Button>
@@ -259,7 +265,12 @@ export default function PositionEditPage() {
                         patch({ accessRules: next });
                       }}
                     >
-                      {["=", "!=", ">", ">=", "<", "<="].map((op) => (
+                      {(attr?.type === "number"
+                        ? ["=", "!=", ">", ">=", "<", "<="]
+                        : attr?.type === "boolean"
+                        ? ["=", "!="]
+                        : ["=", "!=", "contains"]
+                      ).map((op) => (
                         <option key={op} value={op}>
                           {op}
                         </option>
@@ -306,6 +317,7 @@ export default function PositionEditPage() {
                           };
                           patch({ accessRules: next });
                         }}
+                        placeholder={attr?.kind === "technology" ? "Technology name (e.g. macOS)" : undefined}
                       />
                     )}
                   </div>

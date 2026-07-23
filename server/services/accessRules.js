@@ -54,13 +54,24 @@ function compareValues(actual, operator, expected, type) {
   }
 }
 
-function evaluateAccessRules(userAttributeMap, rules = [], attributeMeta = {}) {
+function evaluateAccessRules(userAttributeMap, rules = [], attributeMeta = {}, userSkills = []) {
   if (!rules || rules.length === 0) return true;
 
+  const skills = (userSkills || []).map((s) => String(s).toLowerCase());
+
   return rules.every((rule) => {
+    const meta = attributeMeta[rule.attributeId] || {};
+    const kind = meta.kind || "";
+
+    if (kind === "technology") {
+      const skillName = String(rule.value || "").trim().toLowerCase();
+      if (!skillName) return false;
+      const hasSkill = skills.includes(skillName);
+      return rule.operator === "!=" ? !hasSkill : hasSkill;
+    }
+
     const ua = userAttributeMap[rule.attributeId];
     if (!ua || isEmpty(ua.value)) return false;
-    const meta = attributeMeta[rule.attributeId] || {};
     return compareValues(ua.value, rule.operator || "=", rule.value, meta.type || rule.type);
   });
 }

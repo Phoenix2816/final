@@ -36,7 +36,10 @@ async function userCanSeePosition(user, position) {
   attrs.forEach((a) => {
     meta[a.id] = a;
   });
-  return evaluateAccessRules(buildUserAttrMap(userAttrs), rules, meta);
+
+  const userAttrMap = buildUserAttrMap(userAttrs);
+  const userSkills = user.skills || [];
+  return evaluateAccessRules(userAttrMap, rules, meta, userSkills);
 }
 
 router.get("/", authRequired, async (req, res) => {
