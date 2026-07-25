@@ -79,7 +79,11 @@ export function AuthProvider({ children }) {
 
   const loginWithToken = useCallback(async (token) => {
     localStorage.setItem("token", token);
-    return refresh();
+    const user = await refresh();
+    if (!user) {
+      throw new Error("OAuth login failed");
+    }
+    return user;
   }, [refresh]);
 
   const hasRole = useCallback(

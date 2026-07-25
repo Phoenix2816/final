@@ -48,6 +48,7 @@
     "emailNotConfirmed": "Подтвердите email перед входом.",
     "accountNotFound": "Аккаунт с таким email не найден.",
     "invalidPassword": "Неверный пароль.",
+    "userBlocked": "Ваш аккаунт заблокирован.",
     "registerAs": "Я",
     "chooseRoleTitle": "Выберите роль",
     "chooseRoleHint": "Выберите вариант, который лучше всего описывает вас.",

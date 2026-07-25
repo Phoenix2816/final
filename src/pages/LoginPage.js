@@ -37,6 +37,9 @@ export default function LoginPage() {
     } else if (error === "invalid_token") {
       setAlertMessage(t("auth.confirmEmailInvalid"));
       setAlertVariant("danger");
+    } else if (error === "user_blocked") {
+      setAlertMessage(t("auth.userBlocked"));
+      setAlertVariant("danger");
     }
   }, [searchParams, navigate, t]);
 

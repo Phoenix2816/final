@@ -60,8 +60,10 @@ function configurePassport() {
               }
               await user.save();
             }
-            user.lastLoginAt = new Date();
-            await user.save();
+            if (!user.isBlocked) {
+              user.lastLoginAt = new Date();
+              await user.save();
+            }
             done(null, user);
           } catch (err) {
             done(err);
@@ -110,8 +112,10 @@ function configurePassport() {
               }
               await user.save();
             }
-            user.lastLoginAt = new Date();
-            await user.save();
+            if (!user.isBlocked) {
+              user.lastLoginAt = new Date();
+              await user.save();
+            }
             done(null, user);
           } catch (err) {
             done(err);
@@ -375,17 +379,20 @@ router.get("/confirm-email", async (req, res) => {
   }
 });
 
-function oauthCallback(req, res) {
-  const token = signToken(req.user);
-  generateRefreshToken(req.user)
-    .then((rt) => {
-      res.redirect(`${CLIENT_URL}/oauth/callback?token=${token}&refreshToken=${rt}`);
-    })
-    .catch((err) => {
-      console.error("OAuth refresh token failed", err);
-      res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);
-    });
-}
+  function oauthCallback(req, res) {
+    if (req.user.isBlocked) {
+      return res.redirect(`${CLIENT_URL}/login?error=user_blocked`);
+    }
+    const token = signToken(req.user);
+    generateRefreshToken(req.user)
+      .then((rt) => {
+        res.redirect(`${CLIENT_URL}/oauth/callback?token=${token}&refreshToken=${rt}`);
+      })
+      .catch((err) => {
+        console.error("OAuth refresh token failed", err);
+        res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);
+      });
+  }
 
 router.get("/google", (req, res, next) => {
   if (!process.env.GOOGLE_CLIENT_ID) {
