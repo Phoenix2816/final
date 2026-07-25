@@ -300,6 +300,34 @@ router.put("/:id", authRequired, async (req, res) => {
   }
 });
 
+router.post("/bulk/publish", authRequired, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const results = [];
+    for (const id of ids || []) {
+      const cv = await CV.findByPk(id);
+      if (!cv) continue;
+      if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
+      if (cv.userId === req.user.id && !req.user.hasRole("admin")) {
+        const position = await Position.findByPk(cv.positionId);
+        if (!position || !(await userCanSeePosition(req.user, position))) continue;
+      }
+
+      const payload = await generateCVPayload(cv);
+      if (!payload.complete) continue;
+
+      cv.status = "published";
+      cv.version = (cv.version || 1) + 1;
+      await cv.save();
+      results.push(await generateCVPayload(cv));
+    }
+    res.json(results);
+  } catch (err) {
+    console.error("CV bulk publish failed:", err);
+    res.status(500).json({ error: "Failed to publish CVs" });
+  }
+});
+
 router.post("/:id/publish", authRequired, async (req, res) => {
   try {
     const cv = await CV.findByPk(req.params.id);
@@ -353,37 +381,6 @@ router.post("/:id/unpublish", authRequired, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to unpublish CV" });
-  }
-});
-
-router.post("/bulk/publish", authRequired, async (req, res) => {
-  try {
-    const { ids } = req.body;
-    const results = [];
-    for (const id of ids || []) {
-      const cv = await CV.findByPk(id);
-      if (!cv) continue;
-      if (cv.userId !== req.user.id && !req.user.hasRole("admin")) continue;
-      if (cv.userId === req.user.id && !req.user.hasRole("admin")) {
-        const position = await Position.findByPk(cv.positionId);
-        if (!position || !(await userCanSeePosition(req.user, position))) {
-          results.push({ id, error: "forbidden" });
-          continue;
-        }
-      }
-      const payload = await generateCVPayload(cv);
-      if (!payload.complete) {
-        results.push({ id, error: "incomplete" });
-        continue;
-      }
-      cv.status = "published";
-      await cv.save();
-      results.push({ id, status: "published" });
-    }
-    res.json({ results });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to bulk publish CVs" });
   }
 });
 

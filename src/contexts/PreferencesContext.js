@@ -16,8 +16,8 @@ export function PreferencesProvider({ children }) {
   );
 
   useEffect(() => {
-    if (user?.theme) setThemeState(user.theme);
-    if (user?.language) setLanguageState(user.language);
+    if (user?.theme && !localStorage.getItem("theme")) setThemeState(user.theme);
+    if (user?.language && !localStorage.getItem("language")) setLanguageState(user.language);
   }, [user]);
 
   useEffect(() => {

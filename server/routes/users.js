@@ -180,32 +180,6 @@ router.put("/:id/attributes", authRequired, async (req, res) => {
   }
 });
 
-router.post("/:id/block", authRequired, requireRoles("admin"), async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: "Not found" });
-    user.isBlocked = true;
-    await user.save();
-    res.json(user.toSafeJSON());
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to block user" });
-  }
-});
-
-router.post("/:id/unblock", authRequired, requireRoles("admin"), async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: "Not found" });
-    user.isBlocked = false;
-    await user.save();
-    res.json(user.toSafeJSON());
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to unblock user" });
-  }
-});
-
 router.post("/bulk/block", authRequired, requireRoles("admin"), async (req, res) => {
   try {
     const { ids } = req.body;
@@ -250,6 +224,32 @@ router.delete("/bulk", authRequired, requireRoles("admin"), async (req, res) => 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to delete users" });
+  }
+});
+
+router.post("/:id/block", authRequired, requireRoles("admin"), async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: "Not found" });
+    user.isBlocked = true;
+    await user.save();
+    res.json(user.toSafeJSON());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to block user" });
+  }
+});
+
+router.post("/:id/unblock", authRequired, requireRoles("admin"), async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: "Not found" });
+    user.isBlocked = false;
+    await user.save();
+    res.json(user.toSafeJSON());
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to unblock user" });
   }
 });
 

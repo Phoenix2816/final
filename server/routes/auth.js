@@ -161,7 +161,7 @@ router.post("/register", async (req, res) => {
     const allAttrs = await Attribute.findAll({ where: { kind: "attribute" } });
     if (allAttrs.length > 0) {
       await UserAttribute.bulkCreate(
-        allAttrs.map((a) => ({ userId: user.id, attributeId: a.id, value: null })),
+        allAttrs.map((a) => ({ user: user.toSafeJSON(), attributeId: a.id, value: null })),
         { ignoreDuplicates: true }
       );
     }
@@ -182,7 +182,7 @@ router.post("/register", async (req, res) => {
       message: "Account created. Please check your email to confirm your account.",
       token: accessToken,
       refreshToken,
-      userId: user.id,
+      user: user.toSafeJSON(),
     });
   } catch (err) {
     console.error(err);
