@@ -6,6 +6,8 @@ import api from "../api/client";
 import DataTable, { ToolbarButton } from "../components/common/DataTable";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 
+import { useAuth } from "../contexts/AuthContext";
+
 const ALL_ROLES = ["candidate", "recruiter", "admin"];
 
 const ROLE_PRIORITY = { admin: 3, recruiter: 2, candidate: 1 };
@@ -72,6 +74,7 @@ function formatLastLogin(value) {
 
 export default function UsersPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -514,11 +517,26 @@ export default function UsersPage() {
         onConfirm={async () => {
           try {
             await api.delete("/users/bulk", { data: { ids: selected } });
+            const deletedSelf = selected.some((id) => Number(id) === Number(user?.id));
             setConfirmDelete(false);
             setSelected([]);
-            load();
-          } catch {
-            toast.error("Delete failed");
+            if (deletedSelf) {
+              toast.success("Your account has been deleted");
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 1200);
+            } else {
+              load();
+            }
+          } catch (err) {
+            if (err.response?.status === 401 || err.response?.status === 403) {
+              toast.success("Your account has been deleted");
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 1200);
+            } else {
+              toast.error("Delete failed");
+            }
           }
         }}
       />

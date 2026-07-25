@@ -31,7 +31,7 @@ Attribute.hasMany(UserAttribute, { foreignKey: "attributeId" });
 User.hasMany(Project, { foreignKey: "userId", as: "projects", onDelete: "CASCADE" });
 Project.belongsTo(User, { foreignKey: "userId" });
 
-User.hasMany(Position, { foreignKey: "createdById", as: "createdPositions" });
+User.hasMany(Position, { foreignKey: "createdById", as: "createdPositions", onDelete: "SET NULL" });
 Position.belongsTo(User, { foreignKey: "createdById", as: "creator" });
 
 User.hasMany(CV, { foreignKey: "userId", as: "cvs", onDelete: "CASCADE" });
@@ -61,6 +61,8 @@ PasswordReset.belongsTo(User, { foreignKey: "userId" });
 
 User.hasMany(RefreshToken, { foreignKey: "userId", onDelete: "CASCADE" });
 RefreshToken.belongsTo(User, { foreignKey: "userId" });
+
+User.hasMany(DiscussionMessage, { foreignKey: "userId", as: "authoredMessages", onDelete: "CASCADE" });
 
 module.exports = {
   sequelize,

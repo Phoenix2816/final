@@ -124,7 +124,7 @@ export default function LoginPage() {
         </div>
         {!providers.google && !providers.github && (
           <p className="text-muted small mt-2 mb-0">
-            Configure Google/GitHub OAuth env vars to enable social login.
+            Please wait for the server to start
           </p>
         )}
 

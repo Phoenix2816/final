@@ -125,6 +125,35 @@ router.get("/:id", authRequired, async (req, res) => {
   }
 });
 
+router.post("/", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
+  try {
+    const { category, name, description, type, kind, options } = req.body;
+    if (!name) return res.status(400).json({ error: "Name is required" });
+
+    const normalizedName = name.trim();
+    const targetKind = kind === "technology" ? "technology" : "attribute";
+    const duplicate = await Attribute.findOne({
+      where: { name: { [Op.like]: normalizedName }, kind: targetKind },
+    });
+    if (duplicate) {
+      return res.status(409).json({ error: "Attribute with this name already exists" });
+    }
+
+    const attr = await Attribute.create({
+      category,
+      name: normalizedName,
+      description,
+      type,
+      kind: targetKind,
+      options: type === "dropdown" ? options : [],
+    });
+    res.status(201).json(attr);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create attribute" });
+  }
+});
+
 router.put("/:id", authRequired, requireRoles("recruiter", "admin"), async (req, res) => {
   try {
     const attr = await Attribute.findByPk(req.params.id);
@@ -171,26 +200,6 @@ router.delete("/:id", authRequired, requireRoles("recruiter", "admin"), async (r
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to delete attribute" });
-  }
-});
-
-router.get("/technologies", authRequired, async (req, res) => {
-  try {
-    const { search, category, pageSize = 50 } = req.query;
-    const where = { kind: "technology" };
-    if (category) where.category = category;
-    if (search) {
-      where.name = { [Op.like]: `%${search}%` };
-    }
-    const techs = await Attribute.findAll({
-      where,
-      order: [["name", "ASC"]],
-      limit: Number(pageSize) || 50,
-    });
-    res.json(techs.map((t) => t.toJSON()));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch technologies" });
   }
 });
 

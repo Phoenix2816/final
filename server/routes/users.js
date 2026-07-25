@@ -2,8 +2,8 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const { paginate } = require("sequelize-paginate");
-const { User, UserAttribute, Project, Attribute, RecentAttribute } = require("../models");
-const { authRequired, requireRoles } = require("../middleware/auth");
+const { User, UserAttribute, Project, Attribute, RecentAttribute, DiscussionMessage, Position, CVLike } = require("../models");
+const { authRequired, requireRoles, revokeRefreshTokens } = require("../middleware/auth");
 const { parseListQuery, buildFullTextWhere, paginatedResult } = require("../services/queryHelpers");
 
 paginate(User);
@@ -237,8 +237,15 @@ router.post("/bulk/unblock", authRequired, requireRoles("admin"), async (req, re
 router.delete("/bulk", authRequired, requireRoles("admin"), async (req, res) => {
   try {
     const { ids } = req.body;
-    const filtered = (ids || []).filter((id) => Number(id) !== req.user.id);
-    await User.destroy({ where: { id: { [Op.in]: filtered } } });
+    if (!ids || !ids.length) return res.json({ message: "Deleted" });
+    await DiscussionMessage.destroy({ where: { userId: { [Op.in]: ids } } });
+    await Position.update({ createdById: null }, { where: { createdById: { [Op.in]: ids } } });
+    await CVLike.destroy({ where: { recruiterId: { [Op.in]: ids } } });
+    await Project.destroy({ where: { userId: { [Op.in]: ids } } });
+    await User.destroy({ where: { id: { [Op.in]: ids } } });
+    if (ids.includes(req.user.id)) {
+      await revokeRefreshTokens(req.user.id);
+    }
     res.json({ message: "Deleted" });
   } catch (err) {
     console.error(err);
