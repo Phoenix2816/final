@@ -76,7 +76,6 @@ export default function DiscussionPanel({ positionId }) {
       socket.disconnect();
       clearInterval(poll);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [positionId]);
 
   useEffect(() => {

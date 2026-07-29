@@ -18,14 +18,6 @@ function highlight(text, query) {
   );
 }
 
-// HH.ru / LinkedIn-style technology selector.
-// - Clicking the field shows Recently Used + Popular technologies.
-// - Typing filters the comprehensive library instantly, grouped by category,
-//   with the matched text highlighted.
-// - Category chips let users browse the library by category.
-// - Selected technologies are hidden/disabled in the dropdown (no duplicates).
-// - A "Create '<query>'" option appears when there is no exact match.
-// - Full keyboard navigation (arrows, Enter, Backspace, Escape).
 export default function TechTagInput({
   value = [],
   onChange,
@@ -44,7 +36,6 @@ export default function TechTagInput({
   const inputRef = useRef(null);
   const listRef = useRef(null);
 
-  // Library payload: { categories, flat, popular, recent, counts }
   const [library, setLibrary] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
 
@@ -54,7 +45,7 @@ export default function TechTagInput({
       const data = await loadLibrary();
       setLibrary(data);
     } catch {
-      /* ignore */
+      // ignore
     }
   }, [loadLibrary]);
 
@@ -91,7 +82,6 @@ export default function TechTagInput({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  // Derived values (computed unconditionally to respect Rules of Hooks).
   const q = query.trim();
   const exactMatch = q && (library?.flat || []).some((t) => t.toLowerCase() === q.toLowerCase());
   const selectedSet = useMemo(() => new Set(value.map((v) => v.toLowerCase())), [value]);
@@ -184,10 +174,8 @@ export default function TechTagInput({
     </li>
   );
 
-  // ----- Dropdown content -----
   const dropdown = (
     <div className="tech-tag-dropdown" ref={listRef}>
-      {/* Category chips */}
       {!q && (
         <div className="tech-tag-cats">
           <button

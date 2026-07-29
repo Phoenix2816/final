@@ -89,7 +89,7 @@ router.put("/:id/profile", authRequired, async (req, res) => {
     const user = await User.findByPk(id);
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const { version, firstName, lastName, phone, location, photo, email } = req.body;
+    const { version, firstName, lastName, phone, location, photo } = req.body;
     if (version != null && Number(version) !== Number(user.version)) {
       return res.status(409).json({
         error: "Version conflict",
@@ -103,7 +103,6 @@ router.put("/:id/profile", authRequired, async (req, res) => {
     if (phone !== undefined) user.phone = phone;
     if (location !== undefined) user.location = location;
     if (photo !== undefined) user.photo = photo;
-    if (email !== undefined && isAdmin) user.email = email;
 
     user.version = (user.version || 1) + 1;
     await user.save();

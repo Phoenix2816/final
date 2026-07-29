@@ -439,7 +439,6 @@ async function seedMock() {
       ],
     })
   );
-  // fix attributeTemplate for fullstack if created fresh - already in create above via ensurePosition defaults
   const fullstack = positions[1];
   if (fullstack) {
     fullstack.attributeTemplate = [

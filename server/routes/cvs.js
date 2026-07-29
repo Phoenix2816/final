@@ -221,10 +221,6 @@ router.put("/:id", authRequired, async (req, res) => {
       ["firstName", "lastName", "phone", "location", "photo"].forEach((k) => {
         if (p[k] !== undefined) user[k] = p[k];
       });
-      // Only admins may change email; skip invalid/empty values
-      if (p.email !== undefined && req.user.hasRole("admin") && p.email) {
-        user.email = p.email;
-      }
       user.version = (user.version || 1) + 1;
       await user.save();
     }
@@ -261,7 +257,7 @@ router.put("/:id", authRequired, async (req, res) => {
               value: item.value,
             });
           } catch (createErr) {
-            // Concurrent autosave may race on unique (userId, attributeId)
+            
             if (createErr.name === "SequelizeUniqueConstraintError") {
               ua = await UserAttribute.findOne({
                 where: { userId: cv.userId, attributeId },

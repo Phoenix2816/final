@@ -93,7 +93,7 @@ export default function CVPage() {
       const profile = await api.get(`/users/${data.candidate.id}/profile`);
       setProfileVersion(profile.data.user.version);
     } catch {
-      /* recruiters may still view published CV without full profile edit */
+      // recruiters may still view published CV without full profile edit
     }
   }, [id]);
 
@@ -128,7 +128,7 @@ export default function CVPage() {
           value,
           version: field?.version ?? undefined,
         });
-      } else if (key !== "email" || user?.roles?.includes("admin")) {
+      } else {
         profile[key] = value;
       }
     });
@@ -154,7 +154,7 @@ export default function CVPage() {
         const profileRes = await api.get(`/users/${data.candidate.id}/profile`);
         setProfileVersion(profileRes.data.user.version);
       } catch {
-        /* ignore */
+        // ignore
       }
     }
   }, [id, user]);
@@ -280,7 +280,6 @@ export default function CVPage() {
 
   return (
     <div className={`page-shell cv-page ${payload.readOnly ? "" : "editing"}`}>
-      {/* ===== Résumé header ===== */}
       <header className="cv-header card-resume">
         <div className="cv-header-main">
           {payload.candidate.photo ? (
@@ -393,9 +392,7 @@ export default function CVPage() {
       )}
 
       <div className="resume-layout">
-        {/* ===== Sidebar ===== */}
         <aside className="resume-side">
-          {/* Profile + quick facts */}
           <section className="resume-card cv-profile-card">
             <div className="cv-profile-head">
               {payload.candidate.photo ? (
@@ -527,7 +524,6 @@ export default function CVPage() {
           )}
         </aside>
 
-        {/* ===== Main content ===== */}
         <div className="resume-main">
           {summaryFields.length > 0 && (
             <section className="resume-section">

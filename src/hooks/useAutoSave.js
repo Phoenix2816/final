@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
-/**
- * Debounced auto-save every `delay` ms (default 7s).
- * Never saves on every keystroke — only after the quiet period elapses with a
- * dirty flag set. Concurrent saves are locked to avoid duplicate-key races.
- */
 export default function useAutoSave(saveFn, { delay = 7000, enabled = true } = {}) {
   const [status, setStatus] = useState("idle"); // idle | dirty | saving | saved | conflict | error
   const [conflictPayload, setConflictPayload] = useState(null);

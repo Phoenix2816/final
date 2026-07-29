@@ -34,7 +34,7 @@ function optionalAuth(req, res, next) {
       const user = await User.findByPk(decoded.id);
       if (user && !user.isBlocked) req.user = user;
     } catch {
-      /* ignore */
+      // ignore
     }
     next();
   });

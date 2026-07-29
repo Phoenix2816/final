@@ -115,7 +115,6 @@ export default function UsersPage() {
   useEffect(() => {
     const timer = setTimeout(load, 200);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, role, blocked, sortBy, sortDir, page, pageSize]);
 
   const stats = useMemo(() => {

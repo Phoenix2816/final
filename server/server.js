@@ -21,6 +21,7 @@ const positionRoutes = require("./routes/positions");
 const cvRoutes = require("./routes/cvs");
 const statsRoutes = require("./routes/stats");
 const uploadRoutes = require("./routes/upload");
+const crmRoutes = require("./routes/crm");
 
 const app = express();
 const server = http.createServer(app);
@@ -57,6 +58,7 @@ app.use("/api/positions", positionRoutes);
 app.use("/api/cvs", cvRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/crm", crmRoutes);
 
 setupSocket(server, app);
 
@@ -70,7 +72,6 @@ async function start() {
 
     await sequelize.sync();
 
-    // Ensure the new Project.order column exists in already-created databases.
     try {
       const { Project } = require("./models");
       await Project.sync({ alter: true });

@@ -229,7 +229,7 @@ router.get("/technologies/library", authRequired, async (req, res) => {
             if (!recent.includes(s)) recent.push(s);
           }
         } catch {
-          /* ignore */
+          // ignore
         }
       }
     }

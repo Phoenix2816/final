@@ -45,7 +45,6 @@ export default function PositionsPage() {
   useEffect(() => {
     const timer = setTimeout(load, search ? 250 : 0);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, level, sortBy, sortDir, page, pageSize]);
 
   const columns = [

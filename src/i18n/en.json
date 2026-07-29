@@ -191,7 +191,18 @@
     "requestPasswordChange": "Send confirmation email",
     "passwordEmailSent": "Confirmation email sent. Please check your inbox. If you don't see it, check your spam folder.",
     "passwordChangedSuccess": "Password changed successfully",
-    "passwordChangeFailed": "Password change failed"
+    "passwordChangeFailed": "Password change failed",
+    "crm": {
+      "syncToCrm": "Sync to Salesforce",
+      "syncToCrmHint": "Create an Account and Contact in Salesforce CRM with your profile data.",
+      "title": "Salesforce CRM Sync",
+      "company": "Company",
+      "jobTitle": "Job Title",
+      "description": "Additional Notes",
+      "sync": "Sync Now",
+      "syncSuccess": "Synced to Salesforce successfully",
+      "syncFailed": "Salesforce sync failed"
+    }
   },
   "attributes": {
     "title": "Attribute Library",

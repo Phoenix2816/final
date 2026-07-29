@@ -175,7 +175,18 @@
     "requestPasswordChange": "Отправить письмо для подтверждения",
     "passwordEmailSent": "Письмо для подтверждения отправлено. Проверьте свою почту. Если письмо не пришло, проверьте папку spam.",
     "passwordChangedSuccess": "Пароль успешно изменён",
-    "passwordChangeFailed": "Не удалось изменить пароль"
+    "passwordChangeFailed": "Не удалось изменить пароль",
+    "crm": {
+      "syncToCrm": "Синхронизировать с Salesforce",
+      "syncToCrmHint": "Создать Account и Contact в Salesforce CRM на основе данных профиля.",
+      "title": "Синхронизация с Salesforce",
+      "company": "Компания",
+      "jobTitle": "Должность",
+      "description": "Дополнительные заметки",
+      "sync": "Синхронизировать",
+      "syncSuccess": "Успешно синхронизировано с Salesforce",
+      "syncFailed": "Синхронизация с Salesforce не удалась"
+    }
   },
   "attributes": {
     "title": "Библиотека атрибутов",

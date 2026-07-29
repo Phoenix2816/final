@@ -1,6 +1,3 @@
-// Deterministic color assignment for technology tags.
-// Keeps the same tag visually consistent across the app without storing colors.
-
 const PALETTE = {
   "Frontend": { bg: "#e3f2fd", fg: "#0b5cad", border: "#bcdcfb" },
   "Backend": { bg: "#e8f5e9", fg: "#1b7a3d", border: "#bfe6c8" },

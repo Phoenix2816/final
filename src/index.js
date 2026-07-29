@@ -14,7 +14,7 @@ import { PreferencesProvider } from "./contexts/PreferencesContext";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter> 
       <AuthProvider>
         <PreferencesProvider>
           <App />

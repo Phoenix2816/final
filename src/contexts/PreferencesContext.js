@@ -39,7 +39,7 @@ export function PreferencesProvider({ children }) {
         const { data } = await api.patch("/auth/me/preferences", next);
         setUser(data);
       } catch {
-        /* local prefs still applied */
+        // local prefs still applied
       }
     },
     [user, setUser]

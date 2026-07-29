@@ -41,6 +41,7 @@ const emptyForm = {
 };
 
 export default function AttributesPage() {
+  
   const { t } = useTranslation();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -74,12 +74,85 @@ export default function ProfilePage() {
   const [selectedCvs, setSelectedCvs] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [attrDirty, setAttrDirty] = useState([]);
+
+
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState(null);
+
+  const [showCrmModal, setShowCrmModal] = useState(false);
+  const [crmForm, setCrmForm] = useState({ company: "", jobTitle: "", description: "" });
+  const [crmLoading, setCrmLoading] = useState(false);
+  
+
+  const handlePasswordRequest = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordMessage(null);
+    try {
+      await api.post("/auth/password/request", {
+        currentPassword,
+        newPassword,
+      });
+      setPasswordMessage(t("profile.passwordEmailSent"));
+      toast.success(t("profile.passwordEmailSent"));
+      setShowPasswordModal(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      setPasswordMessage(err.response?.data?.error || t("profile.passwordChangeFailed"));
+      toast.error(err.response?.data?.error || t("profile.passwordChangeFailed"));
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const confirmToken = searchParams.get("confirm-password");
+    if (!confirmToken) return;
+    (async () => {
+      setPasswordLoading(true);
+      setPasswordMessage(null);
+      try {
+        await api.post("/auth/password/confirm", { token: confirmToken });
+        setPasswordMessage(t("profile.passwordChangedSuccess"));
+        toast.success(t("profile.passwordChangedSuccess"));
+        navigate("/profile", { replace: true });
+      } catch (err) {
+        setPasswordMessage(err.response?.data?.error || t("profile.passwordChangeFailed"));
+        toast.error(err.response?.data?.error || t("profile.passwordChangeFailed"));
+        navigate("/profile", { replace: true });
+      } finally {
+        setPasswordLoading(false);
+      }
+    })();
+  }, [searchParams, navigate, t]);
+
+  const handleCrmSync = async (e) => {
+    e.preventDefault();
+    setCrmLoading(true);
+    try {
+      await api.post("/crm/sync", {
+        userId: profileUserId,
+        company: crmForm.company || null,
+        jobTitle: crmForm.jobTitle || null,
+        description: crmForm.description || null,
+      });
+      toast.success(t("profile.crm.syncSuccess"));
+      setShowCrmModal(false);
+      setCrmForm({ company: "", jobTitle: "", description: "" });
+    } catch (err) {
+      toast.error(err.response?.data?.error || t("profile.crm.syncFailed"));
+    } finally {
+      setCrmLoading(false);
+    }
+  };
+
 
   const loadProfile = useCallback(async () => {
     const { data } = await api.get(`/users/${profileUserId}/profile`);
@@ -233,49 +306,6 @@ export default function ProfilePage() {
     markDirty();
   };
 
-  const handlePasswordRequest = async (e) => {
-    e.preventDefault();
-    setPasswordLoading(true);
-    setPasswordMessage(null);
-    try {
-      await api.post("/auth/password/request", {
-        currentPassword,
-        newPassword,
-      });
-      setPasswordMessage(t("profile.passwordEmailSent"));
-      toast.success(t("profile.passwordEmailSent"));
-      setShowPasswordModal(false);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (err) {
-      setPasswordMessage(err.response?.data?.error || t("profile.passwordChangeFailed"));
-      toast.error(err.response?.data?.error || t("profile.passwordChangeFailed"));
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const confirmToken = searchParams.get("confirm-password");
-    if (!confirmToken) return;
-    (async () => {
-      setPasswordLoading(true);
-      setPasswordMessage(null);
-      try {
-        await api.post("/auth/password/confirm", { token: confirmToken });
-        setPasswordMessage(t("profile.passwordChangedSuccess"));
-        toast.success(t("profile.passwordChangedSuccess"));
-        navigate("/profile", { replace: true });
-      } catch (err) {
-        setPasswordMessage(err.response?.data?.error || t("profile.passwordChangeFailed"));
-        toast.error(err.response?.data?.error || t("profile.passwordChangeFailed"));
-        navigate("/profile", { replace: true });
-      } finally {
-        setPasswordLoading(false);
-      }
-    })();
-  }, [searchParams, navigate, t]);
 
   const addAttr = async (attr) => {
     setShowAddAttr(false);
@@ -493,11 +523,14 @@ export default function ProfilePage() {
                 {t("profile.changePassword")}
               </Button>
             )}
+            <Button size="sm" variant="outline-success" onClick={() => setShowCrmModal(true)} title={t("profile.crm.syncToCrmHint")}>
+              <i className="bi bi-cloud-arrow-up me-1" />
+              {t("profile.crm.syncToCrm")}
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Portfolio header */}
       <div className="profile-portfolio card-resume mb-4">
         <div className="profile-portfolio-header d-flex align-items-center gap-4 flex-wrap">
           <div className="profile-portfolio-avatar">
@@ -593,7 +626,6 @@ export default function ProfilePage() {
                   {[
                     ["firstName", t("auth.firstName")],
                     ["lastName", t("auth.lastName")],
-                    ["email", t("auth.email")],
                     ["phone", t("profile.phone")],
                     ["location", t("profile.location")],
                   ].map(([key, label]) => (
@@ -601,7 +633,7 @@ export default function ProfilePage() {
                       <Form.Label>{label}</Form.Label>
                       <Form.Control
                         value={profile[key] || ""}
-                        disabled={!canEdit || (key === "email" && !hasRole("admin"))}
+                        disabled={!canEdit}
                         onChange={(e) => updateProfileField(key, e.target.value)}
                       />
                     </div>
@@ -625,7 +657,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Attributes grouped by category */}
             {groupedAttributes.map(({ category, items }) => {
               const icon = CATEGORY_ICONS[category] || "bi-collection";
               const categoryLabel = formatCategory(category, t);
@@ -1055,6 +1086,54 @@ export default function ProfilePage() {
               </Button>
               <Button variant="primary" type="submit" disabled={passwordLoading || newPassword !== confirmPassword}>
                 {passwordLoading ? t("common.loading") : t("profile.requestPasswordChange")}
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showCrmModal} onHide={() => setShowCrmModal(false)} size="sm">
+        <Modal.Header closeButton>
+          <Modal.Title>{t("profile.crm.title")}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-muted small mb-3">{t("profile.crm.syncToCrmHint")}</p>
+          <Form onSubmit={handleCrmSync}>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="crm-company">{t("profile.crm.company")}</Form.Label>
+              <Form.Control
+                id="crm-company"
+                name="company"
+                value={crmForm.company}
+                onChange={(e) => setCrmForm((p) => ({ ...p, company: e.target.value }))}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="crm-jobTitle">{t("profile.crm.jobTitle")}</Form.Label>
+              <Form.Control
+                id="crm-jobTitle"
+                name="jobTitle"
+                value={crmForm.jobTitle}
+                onChange={(e) => setCrmForm((p) => ({ ...p, jobTitle: e.target.value }))}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label htmlFor="crm-description">{t("profile.crm.description")}</Form.Label>
+              <Form.Control
+                id="crm-description"
+                name="description"
+                as="textarea"
+                rows={3}
+                value={crmForm.description}
+                onChange={(e) => setCrmForm((p) => ({ ...p, description: e.target.value }))}
+              />
+            </Form.Group>
+            <div className="d-flex gap-2 justify-content-end">
+              <Button variant="outline-secondary" onClick={() => setShowCrmModal(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button variant="primary" type="submit" disabled={crmLoading}>
+                {crmLoading ? t("common.loading") : t("profile.crm.sync")}
               </Button>
             </div>
           </Form>

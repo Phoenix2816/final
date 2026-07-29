@@ -50,8 +50,6 @@ async function collectTagStats(userId) {
   return { counts, recent };
 }
 
-// Search endpoint used by the selector while typing. Returns matching
-// technologies (library + any user-created tags), most popular first.
 router.get("/tags", authRequired, async (req, res) => {
   const q = (req.query.q || "").toLowerCase().trim();
   const { counts } = await collectTagStats(req.user.id);
@@ -70,8 +68,6 @@ router.get("/tags", authRequired, async (req, res) => {
   res.json([...used, ...suggested].slice(0, 40));
 });
 
-// Rich library endpoint powering the HH.ru-style selector: categorized library,
-// popular technologies, and the current user's recently used technologies.
 router.get("/tags-library", authRequired, async (req, res) => {
   const { counts, recent } = await collectTagStats(req.user.id);
   const { categories, flat } = await getTechnologyLibrary();

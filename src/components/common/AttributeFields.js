@@ -89,7 +89,7 @@ export function AttributeValueInput({ type, value, onChange, options = [], readO
     case "markdown":
       return (
         <div data-color-mode="auto" className={missing ? "missing-md" : ""}>
-          <MDEditor value={value || ""} onChange={(v) => onChange(v || "")} height={160} />
+          <react-select value={value || ""} onChange={(v) => onChange(v || "")} height={160} />
         </div>
       );
     case "image":
