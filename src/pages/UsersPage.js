@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Form, Modal, Offcanvas } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
@@ -91,7 +91,7 @@ export default function UsersPage() {
   const [roleDraft, setRoleDraft] = useState([]);
   const [drawerUser, setDrawerUser] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await api.get("/users", {
@@ -110,12 +110,12 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, role, blocked, sortBy, sortDir, page, pageSize]);
 
   useEffect(() => {
     const timer = setTimeout(load, 200);
     return () => clearTimeout(timer);
-  }, [search, role, blocked, sortBy, sortDir, page, pageSize]);
+  }, [search, role, blocked, sortBy, sortDir, page, pageSize, load]);
 
   const stats = useMemo(() => {
     const totalUsers = total;

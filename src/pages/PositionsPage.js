@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -27,7 +27,7 @@ export default function PositionsPage() {
 
   const canManage = hasRole("recruiter", "admin");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await api.get("/positions", {
@@ -40,12 +40,12 @@ export default function PositionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, level, sortBy, sortDir, page, pageSize]);
 
   useEffect(() => {
     const timer = setTimeout(load, search ? 250 : 0);
     return () => clearTimeout(timer);
-  }, [search, level, sortBy, sortDir, page, pageSize]);
+  }, [search, level, sortBy, sortDir, page, pageSize, load]);
 
   const columns = [
     {

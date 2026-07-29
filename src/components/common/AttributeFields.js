@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { Form } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
-import MDEditor from "@uiw/react-md-editor";
 import ReactMarkdown from "react-markdown";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";

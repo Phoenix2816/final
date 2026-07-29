@@ -157,7 +157,7 @@ export default function CVPage() {
         // ignore
       }
     }
-  }, [id, user]);
+  }, [id]);
 
   const { status, markDirty, saveNow, setStatus, setConflictPayload } = useAutoSave(persist, {
     enabled: Boolean(payload && !payload.readOnly),

@@ -18,6 +18,8 @@ export default function DiscussionPanel({ positionId }) {
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
   const socketRef = useRef(null);
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +55,8 @@ export default function DiscussionPanel({ positionId }) {
     // Polling fallback every 5s
     const poll = setInterval(async () => {
       try {
-        const last = messages[messages.length - 1];
+        const currentMessages = messagesRef.current;
+        const last = currentMessages[currentMessages.length - 1];
         const params = last ? { since: last.createdAt } : {};
         const { data } = await api.get(`/positions/${positionId}/messages`, { params });
         if (data?.length) {
