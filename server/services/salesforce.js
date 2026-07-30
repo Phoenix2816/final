@@ -58,6 +58,7 @@ async function getSalesforceTokenViaJwt() {
     const description = data.error_description || "Salesforce JWT authentication failed";
     const err = new Error(description);
     err.salesforceError = data.error;
+    err.salesforceRaw = data;
     throw err;
   }
 

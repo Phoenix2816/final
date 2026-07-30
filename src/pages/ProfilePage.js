@@ -147,7 +147,8 @@ export default function ProfilePage() {
       setShowCrmModal(false);
       setCrmForm({ company: "", jobTitle: "", description: "" });
     } catch (err) {
-      toast.error(err.response?.data?.error || t("profile.crm.syncFailed"));
+      const detail = err.response?.data?.detail || err.response?.data?.error || t("profile.crm.syncFailed");
+      toast.error(detail);
     } finally {
       setCrmLoading(false);
     }
