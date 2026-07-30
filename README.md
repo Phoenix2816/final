@@ -134,6 +134,21 @@ GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 GITHUB_REDIRECT_URI=https://final-dhkq.onrender.comauth/github/callback
 
+# Salesforce CRM integration (optional)
+# Create a Connected App in a Salesforce Developer Org with OAuth scope "api" and
+# enable the Username-Password OAuth flow. Use https://login.salesforce.com for
+# production orgs, or https://test.salesforce.com for sandboxes.
+#
+# IMPORTANT: SF_PASSWORD_SECURITY_TOKEN must be the user's actual password
+# concatenated with their Salesforce security token (e.g. MyPasswordMySecurityToken).
+# If you do not have a security token, reset it from Salesforce Setup → My Personal
+# Information → Reset My Security Token.
+SF_CLIENT_ID=
+SF_CLIENT_SECRET=
+SF_USERNAME=
+SF_PASSWORD_SECURITY_TOKEN=
+SF_LOGIN_URL=https://login.salesforce.com
+
 # Email (optional)
 EMAILJS_SERVICE_ID=
 EMAILJS_TEMPLATE_ID=

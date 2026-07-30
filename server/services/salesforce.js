@@ -24,7 +24,10 @@ async function getSalesforceToken() {
   });
 
   if (!data.access_token || !data.instance_url) {
-    throw new Error("Salesforce authentication failed");
+    const description = data.error_description || "Salesforce authentication failed";
+    const err = new Error(description);
+    err.salesforceError = data.error;
+    throw err;
   }
 
   return { accessToken: data.access_token, instanceUrl: data.instance_url };

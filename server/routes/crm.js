@@ -26,6 +26,11 @@ router.post("/sync", authRequired, async (req, res) => {
     if (err.code === "USER_NOT_FOUND") {
       return res.status(404).json({ error: err.message });
     }
+    if (err.salesforceError === "invalid_grant") {
+      const message =
+        "Salesforce authentication failed. Ensure SF_PASSWORD_SECURITY_TOKEN is set to your password concatenated with your Salesforce security token, and that your Connected App allows the Username-Password flow.";
+      return res.status(400).json({ error: message, detail: err.message });
+    }
     const status = err.response?.status || 502;
     const payload =
       status < 500
