@@ -1,4 +1,5 @@
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 
 const SF_CLIENT_ID = process.env.SF_CLIENT_ID;
@@ -7,7 +8,48 @@ const SF_USERNAME = process.env.SF_USERNAME;
 const SF_PASSWORD_SECURITY_TOKEN = process.env.SF_PASSWORD_SECURITY_TOKEN;
 const SF_LOGIN_URL = (process.env.SF_LOGIN_URL || "https://login.salesforce.com").replace(/\/$/, "");
 
-async function getSalesforceToken() {
+const SF_JWT_ISSUER = process.env.SF_JWT_ISSUER || SF_CLIENT_ID;
+const SF_JWT_SUBJECT = process.env.SF_JWT_SUBJECT || SF_USERNAME;
+const SF_JWT_CERT = process.env.SF_JWT_CERT;
+
+function buildJwtAssertion() {
+  if (!SF_JWT_ISSUER || !SF_JWT_SUBJECT || !SF_JWT_CERT) {
+    throw new Error("Salesforce JWT credentials are not configured");
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: SF_JWT_ISSUER,
+    sub: SF_JWT_SUBJECT,
+    aud: SF_LOGIN_URL,
+    exp: now + 300,
+  };
+
+  return jwt.sign(payload, SF_JWT_CERT, { algorithm: "RS256" });
+}
+
+async function getSalesforceTokenViaJwt() {
+  const assertion = buildJwtAssertion();
+
+  const params = new URLSearchParams();
+  params.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+  params.append("assertion", assertion);
+
+  const { data } = await axios.post(`${SF_LOGIN_URL}/services/oauth2/token`, params, {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+
+  if (!data.access_token || !data.instance_url) {
+    const description = data.error_description || "Salesforce JWT authentication failed";
+    const err = new Error(description);
+    err.salesforceError = data.error;
+    throw err;
+  }
+
+  return { accessToken: data.access_token, instanceUrl: data.instance_url };
+}
+
+async function getSalesforceTokenViaPassword() {
   if (!SF_CLIENT_ID || !SF_CLIENT_SECRET || !SF_USERNAME || !SF_PASSWORD_SECURITY_TOKEN) {
     throw new Error("Salesforce credentials are not configured");
   }
@@ -31,6 +73,13 @@ async function getSalesforceToken() {
   }
 
   return { accessToken: data.access_token, instanceUrl: data.instance_url };
+}
+
+async function getSalesforceToken() {
+  if (SF_JWT_CERT && SF_JWT_ISSUER && SF_JWT_SUBJECT) {
+    return getSalesforceTokenViaJwt();
+  }
+  return getSalesforceTokenViaPassword();
 }
 
 async function createSObject(accessToken, instanceUrl, sobjectType, payload) {

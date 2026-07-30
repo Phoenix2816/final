@@ -149,6 +149,13 @@ SF_USERNAME=
 SF_PASSWORD_SECURITY_TOKEN=
 SF_LOGIN_URL=https://login.salesforce.com
 
+# Salesforce JWT Bearer Flow (recommended)
+# Create a self-signed certificate in Salesforce Setup → Certificate and Key Management,
+# upload it to the Connected App under JWT Bearer Flow, and paste the private key below.
+SF_JWT_ISSUER=
+SF_JWT_SUBJECT=
+SF_JWT_CERT=
+
 # Email (optional)
 EMAILJS_SERVICE_ID=
 EMAILJS_TEMPLATE_ID=
