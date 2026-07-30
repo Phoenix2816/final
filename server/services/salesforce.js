@@ -102,7 +102,13 @@ async function getSalesforceTokenViaPassword() {
 }
 
 async function getSalesforceToken() {
-  return getSalesforceTokenViaPassword();
+  try {
+    return await getSalesforceTokenViaJwt();
+  } catch (e) {
+    console.error("JWT ERROR:", e.status);
+    console.error("JWT RAW:", e.salesforceRaw);
+    throw e;
+  }
 }
 
 async function createSObject(accessToken, instanceUrl, sobjectType, payload) {
