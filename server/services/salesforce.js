@@ -17,6 +17,8 @@ function buildJwtAssertion() {
     throw new Error("Salesforce JWT credentials are not configured");
   }
 
+  const privateKey = extractPrivateKey(SF_JWT_CERT);
+
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     iss: SF_JWT_ISSUER,
@@ -25,7 +27,20 @@ function buildJwtAssertion() {
     exp: now + 300,
   };
 
-  return jwt.sign(payload, SF_JWT_CERT, { algorithm: "RS256" });
+  return jwt.sign(payload, privateKey, { algorithm: "RS256" });
+}
+
+function extractPrivateKey(pem) {
+  const cleaned = pem.replace(/\\n/g, "\n").trim();
+  const match = cleaned.match(
+    /-----BEGIN\s+(?:RSA\s+)?PRIVATE\s+KEY-----([\s\S]*?)-----END\s+(?:RSA\s+)?PRIVATE\s+KEY-----/
+  );
+  if (!match) {
+    throw new Error(
+      "SF_JWT_CERT must contain a PEM-encoded RSA private key. Generate one with: openssl genrsa -out private.pem 2048"
+    );
+  }
+  return match[0];
 }
 
 async function getSalesforceTokenViaJwt() {

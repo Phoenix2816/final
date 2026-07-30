@@ -150,8 +150,14 @@ SF_PASSWORD_SECURITY_TOKEN=
 SF_LOGIN_URL=https://login.salesforce.com
 
 # Salesforce JWT Bearer Flow (recommended)
-# Create a self-signed certificate in Salesforce Setup → Certificate and Key Management,
-# upload it to the Connected App under JWT Bearer Flow, and paste the private key below.
+# Generate an RSA key pair locally, upload the public key to Salesforce, and paste the private key below.
+# 
+# Windows (PowerShell):
+#   openssl genrsa -out private.pem 2048
+#   openssl rsa -in private.pem -pubout -out public.pem
+#
+# Then in Salesforce Setup → Certificate and Key Management → Create Self-Signed Certificate,
+# upload public.pem as the certificate. Paste the contents of private.pem into SF_JWT_CERT.
 SF_JWT_ISSUER=
 SF_JWT_SUBJECT=
 SF_JWT_CERT=
