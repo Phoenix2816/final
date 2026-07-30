@@ -102,9 +102,6 @@ async function getSalesforceTokenViaPassword() {
 }
 
 async function getSalesforceToken() {
-  if (SF_JWT_CERT && SF_JWT_ISSUER && SF_JWT_SUBJECT) {
-    return getSalesforceTokenViaJwt();
-  }
   return getSalesforceTokenViaPassword();
 }
 
