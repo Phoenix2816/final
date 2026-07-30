@@ -50,14 +50,19 @@ async function getSalesforceTokenViaJwt() {
   params.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
   params.append("assertion", assertion);
 
-  const { data } = await axios.post(`${SF_LOGIN_URL}/services/oauth2/token`, params, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  });
+  const response = await axios.post(
+    `${SF_LOGIN_URL}/services/oauth2/token`,
+    params,
+    { headers: { "Content-Type": "application/x-www-form-urlencoded" }, validateStatus: () => true }
+  );
+
+  const data = response.data;
 
   if (!data.access_token || !data.instance_url) {
     const description = data.error_description || "Salesforce JWT authentication failed";
     const err = new Error(description);
     err.salesforceError = data.error;
+    err.status = response.status;
     err.salesforceRaw = data;
     throw err;
   }
@@ -77,14 +82,19 @@ async function getSalesforceTokenViaPassword() {
   params.append("username", SF_USERNAME);
   params.append("password", SF_PASSWORD_SECURITY_TOKEN);
 
-  const { data } = await axios.post(`${SF_LOGIN_URL}/services/oauth2/token`, params, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  });
+  const response = await axios.post(
+    `${SF_LOGIN_URL}/services/oauth2/token`,
+    params,
+    { headers: { "Content-Type": "application/x-www-form-urlencoded" }, validateStatus: () => true }
+  );
+
+  const data = response.data;
 
   if (!data.access_token || !data.instance_url) {
     const description = data.error_description || "Salesforce authentication failed";
     const err = new Error(description);
     err.salesforceError = data.error;
+    err.status = response.status;
     throw err;
   }
 
