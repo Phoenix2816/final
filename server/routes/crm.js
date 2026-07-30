@@ -4,6 +4,10 @@ const { syncUserToSalesforce } = require("../services/salesforce");
 
 const router = express.Router();
 
+router.get("/sync", (req, res) => {
+  res.json({ ok: true, endpoint: "/api/crm/sync" });
+});
+
 router.post("/sync", authRequired, async (req, res) => {
   try {
     const isSelf = req.user.id === Number(req.body.userId);
