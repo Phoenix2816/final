@@ -31,8 +31,7 @@ router.post("/sync", authRequired, async (req, res) => {
       return res.status(404).json({ error: err.message });
     }
     if (err.salesforceError === "invalid_grant") {
-      const message =
-        "Salesforce authentication failed. Ensure SF_PASSWORD_SECURITY_TOKEN is set to your password concatenated with your Salesforce security token, and that your Connected App allows the Username-Password flow.";
+      const message = err.message || "Salesforce authentication failed. Contact support or check Connected App approval.";
       return res.status(400).json({ error: message, detail: err.message, raw: err.salesforceRaw });
     }
     const status = err.response?.status || 502;
