@@ -147,8 +147,15 @@ export default function ProfilePage() {
       setShowCrmModal(false);
       setCrmForm({ company: "", jobTitle: "", description: "" });
     } catch (err) {
+      const status = err.response?.status;
       const detail = err.response?.data?.detail || err.response?.data?.error || t("profile.crm.syncFailed");
-      toast.error(detail);
+      if (status === 400 && detail) {
+        toast.error(detail, { duration: 6000 });
+      } else {
+        toast.error(detail);
+      }
+      setShowCrmModal(false);
+      setCrmForm({ company: "", jobTitle: "", description: "" });
     } finally {
       setCrmLoading(false);
     }
