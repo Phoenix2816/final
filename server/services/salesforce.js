@@ -131,12 +131,32 @@ async function getSalesforceTokenViaClientCredentials() {
   return { accessToken: data.access_token, instanceUrl: data.instance_url || SF_LOGIN_URL };
 }
 
+function isOrgFarmRestriction(err) {
+  const raw = err.salesforceRaw || {};
+  const desc = String(raw.error_description || err.message || "").toLowerCase();
+  return (
+    desc.includes("no client credentials user enabled") ||
+    desc.includes("user hasn't approved this consumer") ||
+    desc.includes("username-password flow disabled")
+  );
+}
+
 async function getSalesforceToken() {
   try {
     return await getSalesforceTokenViaClientCredentials();
   } catch (e) {
     console.error("CLIENT_CREDENTIALS ERROR:", e.status);
     console.error("CLIENT_CREDENTIALS RAW:", e.salesforceRaw);
+
+    if (isOrgFarmRestriction(e)) {
+      const err = new Error("Salesforce integration is unavailable in this org because server-to-server OAuth flows are restricted. Use a standard Developer Edition org to enable CRM sync.");
+      err.code = "SF_ORG_RESTRICTED";
+      err.salesforceError = e.salesforceError;
+      err.status = e.status || 400;
+      err.salesforceRaw = e.salesforceRaw;
+      throw err;
+    }
+
     throw e;
   }
 }

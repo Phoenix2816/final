@@ -30,11 +30,14 @@ router.post("/sync", authRequired, async (req, res) => {
     if (err.code === "USER_NOT_FOUND") {
       return res.status(404).json({ error: err.message });
     }
+    if (err.code === "SF_ORG_RESTRICTED") {
+      return res.status(409).json({ error: err.message, code: err.code });
+    }
     if (err.salesforceError === "invalid_grant") {
       const message = err.message || "Salesforce authentication failed. Check Connected App settings.";
       return res.status(400).json({ error: message, detail: err.message, raw: err.salesforceRaw });
     }
-    const status = err.response?.status || 502;
+    const status = err.status || 400;
     const payload =
       status < 500
         ? err.response?.data
