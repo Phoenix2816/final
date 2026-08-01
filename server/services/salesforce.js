@@ -101,12 +101,42 @@ async function getSalesforceTokenViaPassword() {
   return { accessToken: data.access_token, instanceUrl: data.instance_url };
 }
 
+async function getSalesforceTokenViaClientCredentials() {
+  if (!SF_CLIENT_ID || !SF_CLIENT_SECRET) {
+    throw new Error("Salesforce client credentials are not configured");
+  }
+
+  const params = new URLSearchParams();
+  params.append("grant_type", "client_credentials");
+  params.append("client_id", SF_CLIENT_ID);
+  params.append("client_secret", SF_CLIENT_SECRET);
+
+  const response = await axios.post(
+    `${SF_LOGIN_URL}/services/oauth2/token`,
+    params,
+    { headers: { "Content-Type": "application/x-www-form-urlencoded" }, validateStatus: () => true }
+  );
+
+  const data = response.data;
+
+  if (!data.access_token) {
+    const description = data.error_description || "Salesforce client credentials authentication failed";
+    const err = new Error(description);
+    err.salesforceError = data.error;
+    err.status = response.status;
+    err.salesforceRaw = data;
+    throw err;
+  }
+
+  return { accessToken: data.access_token, instanceUrl: data.instance_url || SF_LOGIN_URL };
+}
+
 async function getSalesforceToken() {
   try {
-    return await getSalesforceTokenViaJwt();
+    return await getSalesforceTokenViaClientCredentials();
   } catch (e) {
-    console.error("JWT ERROR:", e.status);
-    console.error("JWT RAW:", e.salesforceRaw);
+    console.error("CLIENT_CREDENTIALS ERROR:", e.status);
+    console.error("CLIENT_CREDENTIALS RAW:", e.salesforceRaw);
     throw e;
   }
 }

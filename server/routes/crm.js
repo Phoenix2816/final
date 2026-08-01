@@ -31,7 +31,7 @@ router.post("/sync", authRequired, async (req, res) => {
       return res.status(404).json({ error: err.message });
     }
     if (err.salesforceError === "invalid_grant") {
-      const message = err.message || "Salesforce authentication failed. Contact support or check Connected App approval.";
+      const message = err.message || "Salesforce authentication failed. Check Connected App settings.";
       return res.status(400).json({ error: message, detail: err.message, raw: err.salesforceRaw });
     }
     const status = err.response?.status || 502;
