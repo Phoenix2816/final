@@ -52,7 +52,6 @@ class OdooPositionImportWizard(models.TransientModel):
     api_token = fields.Char(
         string="API Token",
         required=True,
-        password=True,
         help="Per-position API token generated on the external position form.",
     )
 
