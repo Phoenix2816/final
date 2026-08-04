@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Button, Tab, Tabs } from "react-bootstrap";
+import { Button, Modal, Tab, Tabs } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
-import api from "../api/client";
+import api, { API_URL } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import DiscussionPanel from "../components/discussions/DiscussionPanel";
 import DataTable from "../components/common/DataTable";
@@ -42,6 +42,8 @@ export default function PositionDetailPage() {
   const [cvTotal, setCvTotal] = useState(0);
   const [cvSearch, setCvSearch] = useState("");
   const [cvPage, setCvPage] = useState(1);
+  const [apiToken, setApiToken] = useState(null);
+  const [showTokenModal, setShowTokenModal] = useState(false);
   const isStaff = hasRole("recruiter", "admin");
 
   useEffect(() => {
@@ -102,6 +104,19 @@ export default function PositionDetailPage() {
       navigate(`/cvs/${data.cv.id}`);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed");
+    }
+  };
+
+  const generateApiToken = async () => {
+    try {
+      const { data } = await api.post("/tokens", {
+        positionId: position.id,
+        name: `${position.title} token`,
+      });
+      setApiToken(data);
+      setShowTokenModal(true);
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to generate API token");
     }
   };
 
@@ -194,6 +209,12 @@ export default function PositionDetailPage() {
             <Button as={Link} to={`/positions/${id}/edit`} variant="outline-primary">
               <i className="bi bi-pencil me-1" />
               {t("common.edit")}
+            </Button>
+          )}
+          {isStaff && (
+            <Button variant="outline-secondary" onClick={generateApiToken}>
+              <i className="bi bi-key me-1" />
+              Get API token
             </Button>
           )}
           {user && (
@@ -324,6 +345,53 @@ export default function PositionDetailPage() {
           </Tab>
         )}
       </Tabs>
+
+      <Modal show={showTokenModal} onHide={() => setShowTokenModal(false)} centered backdrop="static">
+        <Modal.Header closeButton>
+          <Modal.Title>API Token Generated</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {apiToken && (
+            <div>
+              <p className="mb-2">
+                Share this token with external systems to grant read-only access to aggregated
+                results for this position. Store it securely — it is only shown once.
+              </p>
+              <div className="input-group mb-2">
+                <input
+                  type="text"
+                  className="form-control font-monospace"
+                  readOnly
+                  value={apiToken.token}
+                  onFocus={(e) => e.target.select()}
+                />
+                <button
+                  className="btn btn-outline-secondary"
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(apiToken.token);
+                    toast.success("Token copied to clipboard");
+                  }}
+                >
+                  <i className="bi bi-clipboard me-1" />
+                  Copy
+                </button>
+              </div>
+              <div className="alert alert-light mb-0 small">
+                <i className="bi bi-info-circle me-1" />
+                Send as <code>Authorization: Bearer &lt;token&gt;</code> or
+                <code>?token=&lt;token&gt;</code> to{" "}
+                <code>{API_URL}/api/external/aggregations</code>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={() => setShowTokenModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

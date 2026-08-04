@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_import_wizard_form" model="ir.ui.view">
+        <field name="name">odoo.position.import.wizard.form</field>
+        <field name="model">odoo.position.import.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="api_url"/>
+                    <field name="api_token"/>
+                </group>
+                <footer>
+                    <button name="action_import" type="object" string="Import" class="oe_highlight"/>
+                    <button name="action_open_list" type="object" string="View All Positions" class="oe_link"/>
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

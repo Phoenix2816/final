@@ -3,9 +3,6 @@ import logging
 import urllib.request
 import urllib.error
 import ssl
-from datetime import datetime
-
-from dateutil import parser as dateutil_parser
 
 from odoo import models, fields
 from odoo.exceptions import UserError
@@ -14,12 +11,6 @@ _logger = logging.getLogger(__name__)
 
 
 def _fetch_external_aggregations(api_url, api_token, timeout=30):
-    """Call the external recruitment API and return parsed JSON.
-
-    The external API is secured by a per-position API token. The token must be
-    sent as ``Authorization: Bearer <token>`` (a ``?token=<token>`` query
-    parameter is also accepted by the external service).
-    """
     if not api_url:
         raise ValueError("API URL is required")
     if not api_token:
@@ -55,18 +46,43 @@ class OdooPositionImportWizard(models.TransientModel):
     api_url = fields.Char(
         string="API URL",
         required=True,
-        default="http://host.docker.internal:5050/api/external/aggregations",
+        default="https://final-dhkq.onrender.com/api/external/aggregations",
         help="URL of the external aggregated-results endpoint.",
     )
     api_token = fields.Char(
         string="API Token",
         required=True,
-        widget="password",
+        password=True,
         help="Per-position API token generated on the external position form.",
     )
 
+    @staticmethod
+    def _to_text(value):
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False)
+        if isinstance(value, bool):
+            return "true" if value else "false"
+        return str(value)
+
+    @staticmethod
+    def _to_odoo_datetime(value):
+        if not value:
+            return False
+        if isinstance(value, str):
+            try:
+                return fields.Datetime.to_string(fields.Datetime.from_string(value))
+            except ValueError:
+                import datetime
+                try:
+                    dt = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+                    return fields.Datetime.to_string(dt)
+                except (ValueError, TypeError):
+                    return False
+        return False
+
     def _decode_aggregation(self, aggregation):
-        """Flatten a raw aggregation dict into a list of (metric, value, count)."""
         rows = []
         if not isinstance(aggregation, dict):
             return rows
@@ -88,34 +104,6 @@ class OdooPositionImportWizard(models.TransientModel):
             if key in aggregation and aggregation[key] is not None:
                 rows.append((key, self._to_text(aggregation[key]), 0))
         return rows
-
-    @staticmethod
-    def _to_text(value):
-        if value is None:
-            return ""
-        if isinstance(value, (dict, list)):
-            return json.dumps(value, ensure_ascii=False)
-        if isinstance(value, bool):
-            return "true" if value else "false"
-        return str(value)
-
-    @staticmethod
-    def _to_odoo_datetime(value):
-        """Normalize an ISO 8601 / UTC timestamp to Odoo's %Y-%m-%d %H:%M:%S format."""
-        if not value:
-            return False
-        if isinstance(value, datetime):
-            return fields.Datetime.to_string(value)
-        if isinstance(value, str):
-            try:
-                return fields.Datetime.to_string(fields.Datetime.from_string(value))
-            except ValueError:
-                try:
-                    dt = dateutil_parser.isoparse(value)
-                except (ValueError, TypeError):
-                    return False
-                return fields.Datetime.to_string(dt)
-        return False
 
     def _import_payload(self, payload):
         self.ensure_one()
@@ -144,16 +132,15 @@ class OdooPositionImportWizard(models.TransientModel):
             "candidate_count": stats.get("candidateCount", 0),
             "cv_count": stats.get("cvCount", 0),
             "total_likes": stats.get("totalLikes", 0),
-             "generated_at": self._to_odoo_datetime(payload.get("generatedAt")),
+            "generated_at": self._to_odoo_datetime(payload.get("generatedAt")),
         }
 
         if existing:
             existing.write(vals)
             position = existing
+            position.attribute_ids.unlink()
         else:
             position = Position.create(vals)
-
-        position.attribute_ids.unlink()
 
         Attribute = self.env["odoo.position.attribute"].sudo().with_context(active_test=False)
         Result = self.env["odoo.position.aggregated.result"].sudo().with_context(active_test=False)

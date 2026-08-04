@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_result_search" model="ir.ui.view">
+        <field name="name">odoo.position.aggregated.result.search</field>
+        <field name="model">odoo.position.aggregated.result</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="metric"/>
+                <field name="attribute_id"/>
+                <field name="position_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_result_tree" model="ir.ui.view">
+        <field name="name">odoo.position.aggregated.result.tree</field>
+        <field name="model">odoo.position.aggregated.result</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="position_id"/>
+                <field name="attribute_id"/>
+                <field name="metric"/>
+                <field name="value"/>
+                <field name="count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_result_form" model="ir.ui.view">
+        <field name="name">odoo.position.aggregated.result.form</field>
+        <field name="model">odoo.position.aggregated.result</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="position_id" readonly="1"/>
+                        <field name="attribute_id" readonly="1"/>
+                        <field name="metric"/>
+                        <field name="value"/>
+                        <field name="count"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

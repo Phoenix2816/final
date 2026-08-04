@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_position_integration_root" name="Position Integration" sequence="100"/>
+
+    <menuitem id="menu_position_import" name="Positions" parent="menu_position_integration_root" sequence="10"/>
+    <menuitem id="menu_import_from_api" name="Import from API" parent="menu_position_integration_root" sequence="20"/>
+    <menuitem id="menu_odoo_position_attribute" name="Attributes" parent="menu_position_integration_root" sequence="30"/>
+    <menuitem id="menu_odoo_position_aggregated_result" name="Aggregated Results" parent="menu_position_integration_root" sequence="40"/>
+
+    <record id="action_positions" model="ir.actions.act_window">
+        <field name="name">Positions</field>
+        <field name="res_model">odoo.position</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_import">
+                Import positions from your external recruitment API.
+            </p>
+        </field>
+    </record>
+    <menuitem id="menu_position_import_action" name="Positions" parent="menu_position_integration_root" action="action_positions" sequence="10"/>
+
+    <record id="action_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import from API</field>
+        <field name="res_model">odoo.position.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_wizard_form"/>
+    </record>
+    <menuitem id="menu_import_from_api_action" name="Import from API" parent="menu_position_integration_root" action="action_import_wizard" sequence="20"/>
+
+    <record id="action_attributes" model="ir.actions.act_window">
+        <field name="name">Attributes</field>
+        <field name="res_model">odoo.position.attribute</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_odoo_position_attribute_action" name="Attributes" parent="menu_position_integration_root" action="action_attributes" sequence="30"/>
+
+    <record id="action_aggregated_results" model="ir.actions.act_window">
+        <field name="name">Aggregated Results</field>
+        <field name="res_model">odoo.position.aggregated.result</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_odoo_position_aggregated_result_action" name="Aggregated Results" parent="menu_position_integration_root" action="action_aggregated_results" sequence="40"/>
+</odoo>

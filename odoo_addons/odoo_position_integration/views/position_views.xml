@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_position_search" model="ir.ui.view">
+        <field name="name">odoo.position.search</field>
+        <field name="model">odoo.position</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="company"/>
+                <field name="level"/>
+                <field name="source_position_id"/>
+                <group>
+                    <filter string="Company" name="company"/>
+                    <filter string="Level" name="level"/>
+                </group>
+                <group>
+                    <filter string="All" name="all" domain="[]"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_position_tree" model="ir.ui.view">
+        <field name="name">odoo.position.tree</field>
+        <field name="model">odoo.position</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="company"/>
+                <field name="level"/>
+                <field name="candidate_count"/>
+                <field name="cv_count"/>
+                <field name="total_likes"/>
+                <field name="generated_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_position_form" model="ir.ui.view">
+        <field name="name">odoo.position.form</field>
+        <field name="model">odoo.position</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_reimport" type="object" string="Re-import" class="oe_highlight"/>
+                    <button name="action_open_attributes" type="object" string="View Attributes" class="oe_link"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" widget="char"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company"/>
+                            <field name="level"/>
+                            <field name="visibility"/>
+                            <field name="source_position_id"/>
+                            <field name="generated_at"/>
+                        </group>
+                        <group>
+                            <field name="candidate_count"/>
+                            <field name="cv_count"/>
+                            <field name="total_likes"/>
+                            <field name="api_token" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="attributes" string="Attributes">
+                            <field name="attribute_ids" mode="list">
+                                <list editable="top">
+                                    <field name="title"/>
+                                    <field name="type"/>
+                                    <field name="category"/>
+                                    <field name="value_count"/>
+                                    <field name="value_total"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <field name="short_description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_attribute_tree" model="ir.ui.view">
+        <field name="name">odoo.position.attribute.tree</field>
+        <field name="model">odoo.position.attribute</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="position_id"/>
+                <field name="title"/>
+                <field name="type"/>
+                <field name="category"/>
+                <field name="value_count"/>
+                <field name="value_total"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_attribute_search" model="ir.ui.view">
+        <field name="name">odoo.position.attribute.search</field>
+        <field name="model">odoo.position.attribute</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="title"/>
+                <field name="type"/>
+                <field name="category"/>
+                <field name="position_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_attribute_form" model="ir.ui.view">
+        <field name="name">odoo.position.attribute.form</field>
+        <field name="model">odoo.position.attribute</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="position_id" readonly="1"/>
+                        <field name="title"/>
+                        <field name="type"/>
+                        <field name="category"/>
+                        <field name="value_count"/>
+                        <field name="value_total"/>
+                    </group>
+                    <field name="result_ids" mode="list">
+                        <list editable="top">
+                            <field name="metric"/>
+                            <field name="value"/>
+                            <field name="count"/>
+                        </list>
+                    </field>
+                    <field name="aggregation" widget="textarea" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

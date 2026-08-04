@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_odoo_position,odoo.position access,model_odoo_position,base.group_user,1,1,1,0
+access_odoo_attribute,odoo.position.attribute access,model_odoo_position_attribute,base.group_user,1,1,1,0
+access_odoo_result,odoo.position.aggregated.result access,model_odoo_position_aggregated_result,base.group_user,1,1,1,0
+access_odoo_wizard,odoo.position.import.wizard access,model_odoo_position_import_wizard,base.group_user,1,1,1,0
