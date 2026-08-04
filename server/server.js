@@ -22,6 +22,8 @@ const cvRoutes = require("./routes/cvs");
 const statsRoutes = require("./routes/stats");
 const uploadRoutes = require("./routes/upload");
 const crmRoutes = require("./routes/crm");
+const apiTokenRoutes = require("./routes/apiTokens");
+const aggregationRoutes = require("./routes/aggregations");
 
 const app = express();
 const server = http.createServer(app);
@@ -59,6 +61,8 @@ app.use("/api/cvs", cvRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/crm", crmRoutes);
+app.use("/api/tokens", apiTokenRoutes);
+app.use("/api/external", aggregationRoutes);
 
 setupSocket(server, app);
 
@@ -117,6 +121,13 @@ async function start() {
       await User.sync({ alter: true });
     } catch (err) {
       console.warn("User.sync(alter) skipped:", err.message);
+    }
+
+    try {
+      const { ApiToken } = require("./models");
+      await ApiToken.sync({ alter: true });
+    } catch (err) {
+      console.warn("ApiToken.sync(alter) skipped:", err.message);
     }
 
     try {

@@ -10,6 +10,7 @@ const DiscussionMessageModel = require("./DiscussionMessage");
 const RecentAttributeModel = require("./RecentAttribute");
 const PasswordResetModel = require("./PasswordReset");
 const RefreshTokenModel = require("./RefreshToken");
+const ApiTokenModel = require("./ApiToken");
 
 const User = UserModel(sequelize);
 const Attribute = AttributeModel(sequelize);
@@ -22,6 +23,7 @@ const DiscussionMessage = DiscussionMessageModel(sequelize);
 const RecentAttribute = RecentAttributeModel(sequelize);
 const PasswordReset = PasswordResetModel(sequelize);
 const RefreshToken = RefreshTokenModel(sequelize);
+const ApiToken = ApiTokenModel(sequelize);
 
 User.hasMany(UserAttribute, { foreignKey: "userId", as: "attributes", onDelete: "CASCADE" });
 UserAttribute.belongsTo(User, { foreignKey: "userId" });
@@ -64,6 +66,11 @@ RefreshToken.belongsTo(User, { foreignKey: "userId" });
 
 User.hasMany(DiscussionMessage, { foreignKey: "userId", as: "authoredMessages", onDelete: "CASCADE" });
 
+Position.hasMany(ApiToken, { foreignKey: "positionId", as: "apiTokens", onDelete: "CASCADE" });
+ApiToken.belongsTo(Position, { foreignKey: "positionId", as: "position" });
+User.hasMany(ApiToken, { foreignKey: "createdById", as: "apiTokens", onDelete: "SET NULL" });
+ApiToken.belongsTo(User, { foreignKey: "createdById", as: "creator" });
+
 module.exports = {
   sequelize,
   User,
@@ -77,4 +84,5 @@ module.exports = {
   RecentAttribute,
   PasswordReset,
   RefreshToken,
+  ApiToken,
 };
