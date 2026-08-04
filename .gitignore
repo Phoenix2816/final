@@ -55,3 +55,7 @@ Thumbs.db
 private.pem
 talentflow-jwt.pem
 certificate.pem
+
+# Python cache
+__pycache__/
+*.pyc
