@@ -303,3 +303,157 @@ testing/
 ## License
 
 ISC
+
+---
+
+# Odoo Integration
+
+This project includes an **Odoo 18 module** (`odoo_position_integration`) that acts as a read-only viewer for position aggregated results. Odoo uses its own PostgreSQL database (separate from this project's MySQL).
+
+## Architecture
+
+```
+┌─────────────────────────────┐       HTTP API (Bearer token)       ┌────────────────────┐
+│  CV Management System        │  ←→  GET /api/external/aggregations  │  Odoo 18            │
+│  (React + Express + MySQL)   │        ?token=XXXX                    │  (Docker+PostgreSQL)│
+│                              │                                        │                    │
+│  • MySQL database (Aiven)    │                                        │  • Imports data    │
+│  • Positions/CVs/Attributes  │                                        │  • Read-only views │
+│  • API tokens (per position) │                                        │  • List/Form views │
+│  • JWT auth                  │                                        │                    │
+└─────────────────────────────┘                                        └────────────────────┘
+```
+
+## Prerequisites
+
+- Docker installed locally
+- External API deployed to `https://final-dhkq.onrender.com` (or self-host at localhost:5000)
+- Position created in the CV Management System with candidate applications
+
+## Quick Start
+
+1. Start your backend (MySQL) server on `localhost:5000` or use the deployed version
+2. Start Odoo:
+   ```bash
+   docker-compose up -d
+   ```
+3. Wait 30-60 seconds for first initialization (modules auto-install)
+4. Access Odoo at `http://localhost:8069/web/login` (admin / admin)
+
+## Integration Flow
+
+### Step 1: Generate API Token
+1. Log into the CV Management System as recruiter/admin
+2. Open a position page (e.g., `https://final-lemon-six-63.vercel.app/positions/1`)
+3. Click **"Get API token"** button
+4. Copy the token from the modal
+
+### Step 2: Import into Odoo
+1. Open Odoo: `http://localhost:8069`
+2. Navigate to **Position Integration** → **Import from API**
+3. Enter:
+   - **API URL:** `https://final-dhkq.onrender.com/api/external/aggregations` (or localhost URL)
+   - **API Token:** (paste the token from Step 1)
+4. Click **Import**
+
+### Step 3: View Imported Data
+- **Positions** menu: List of all imported positions with stats
+- **Attributes** menu: All attributes across positions
+- **Aggregated Results** menu: Individual metric rows
+- Open any position record to see its attributes inline
+
+### Step 4: Re-import
+1. Open a position record in Odoo
+2. Click **"Re-import"** button in the header
+3. The wizard opens with the API token pre-filled
+4. Click **Import** to update data (old attributes/results are replaced)
+
+## Odoo Module Structure
+
+```
+odoo_addons/odoo_position_integration/
+├── __manifest__.py         # Module metadata
+├── __init__.py
+├── models/
+│   ├── position.py          # Position model (title, external_id, stats)
+│   ├── attribute.py         # Attribute model (title, type, aggregation)
+│   └── aggregated_result.py # Result model (metric, value, count)
+├── wizard/
+│   └── import_wizard.py     # Import from external API by token
+├── views/                   # List/form/search views
+├── security/                # Access control rules
+└── __pycache__/
+```
+
+## API Endpoints
+
+### Generate API Token (JWT auth required)
+```
+POST /api/tokens
+Authorization: Bearer <jwt>
+Body: { "positionId": 1, "name": "Odoo Import" }
+Response: { "token": "a1b2c3...", "id": 1, "positionId": 1 }
+```
+
+### Fetch Aggregated Results (API token only, no JWT)
+```
+GET /api/external/aggregations?token=XXXX
+or
+GET /api/external/aggregations
+Authorization: Bearer <api_token>
+```
+
+Response format:
+```json
+{
+  "position": {
+    "id": 1,
+    "title": "Frontend Developer",
+    "company": "...",
+    "level": "senior",
+    "visibility": "public",
+    "shortDescription": "..."
+  },
+  "stats": {
+    "candidateCount": 3,
+    "cvCount": 5,
+    "totalLikes": 12
+  },
+  "attributes": [
+    {
+      "attributeId": 2,
+      "title": "Experience",
+      "type": "number",
+      "category": "Technical",
+      "aggregation": {
+        "avg": 3.7,
+        "min": 1,
+        "max": 8,
+        "popular": [{"value": 5, "count": 2}]
+      }
+    }
+  ],
+  "generatedAt": "2026-08-05T10:00:00.000Z"
+}
+```
+
+## Deployment Without Docker
+
+**Important:** Odoo requires PostgreSQL — it cannot use MySQL.
+
+1. Install PostgreSQL 16 locally
+2. Install Python 3.12 and Odoo dependencies
+3. Clone Odoo 18 source and configure `odoo.conf`
+4. See `ODOO_DEPLOYMENT.md` for full instructions
+
+See `ODOO_DEPLOYMENT.md` for detailed non-Docker deployment steps.
+
+## Security Model
+
+- API tokens are generated via `crypto.randomBytes(32)` (64 hex chars)
+- Tokens are SHA-256 hashed before storage (raw token never stored)
+- Each token is tied to a specific position — no cross-position access
+- OAuth module (admin/recruiter roles required to generate tokens)
+- Tokens can be revoked via DELETE `/api/tokens/:id`
+- Odoo access control: read/create/update for authenticated users, no delete
+
