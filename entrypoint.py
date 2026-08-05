@@ -15,7 +15,7 @@ db_password = {os.environ.get('DB_PASSWORD', 'odoo')}
 db_name = {os.environ.get('DB_NAME', 'odoo')}
 db_sslmode = {os.environ.get('DB_SSLMODE', 'prefer')}
 
-addons_path = /mnt/extra-addons/odoo_position_integration,/usr/lib/python3/dist-packages/odoo/addons
+addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
 
 http_port = 8069
 http_interface = 0.0.0.0
