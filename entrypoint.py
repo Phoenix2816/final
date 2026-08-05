@@ -5,28 +5,32 @@ import subprocess
 
 config_path = "/etc/odoo/odoo.conf"
 
-config = f"""[options]
-admin_passwd = {os.environ.get('ODOO_ADMIN_PASSWORD', 'admin')}
+lines = ["[options]"]
+lines.append(f"admin_passwd = {os.environ.get('ODOO_ADMIN_PASSWORD', 'admin')}")
+lines.append(f"db_host = {os.environ.get('DB_HOST', 'localhost')}")
+lines.append(f"db_port = {os.environ.get('DB_PORT', '5432')}")
+lines.append(f"db_user = {os.environ.get('DB_USER', 'odoo')}")
+lines.append(f"db_password = {os.environ.get('DB_PASSWORD', 'odoo')}")
+lines.append(f"db_sslmode = {os.environ.get('DB_SSLMODE', 'prefer')}")
 
-db_host = {os.environ.get('DB_HOST', 'localhost')}
-db_port = {os.environ.get('DB_PORT', '5432')}
-db_user = {os.environ.get('DB_USER', 'odoo')}
-db_password = {os.environ.get('DB_PASSWORD', 'odoo')}
-db_name = {os.environ.get('DB_NAME', 'odoo')}
-db_sslmode = {os.environ.get('DB_SSLMODE', 'prefer')}
+db_name = os.environ.get('DB_NAME')
+if db_name:
+    lines.append(f"db_name = {db_name}")
+else:
+    lines.append("# db_name = odoo")
 
-addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+lines.append("addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons")
+lines.append("http_port = 8069")
+lines.append("http_interface = 0.0.0.0")
+lines.append("workers = 0")
+lines.append("log_level = info")
 
-http_port = 8069
-http_interface = 0.0.0.0
-workers = 0
-log_level = info
-"""
+config = "\n".join(lines) + "\n"
 
 with open(config_path, "w") as f:
     f.write(config)
 
 print(f"Config written to {config_path}")
+print("DB_NAME:", db_name or "(not set, database manager will be shown)")
 
-# Start Odoo
 sys.exit(subprocess.call(["odoo", "-c", config_path]))
