@@ -378,10 +378,33 @@ export default function PositionDetailPage() {
                 </button>
               </div>
               <div className="alert alert-light mb-0 small">
-                <i className="bi bi-info-circle me-1" />
-                Send as <code>Authorization: Bearer &lt;token&gt;</code> or
-                <code>?token=&lt;token&gt;</code> to{" "}
-                <code>{API_URL}/api/external/aggregations</code>
+                <p className="mb-2">
+                  <strong>How to use this token:</strong>
+                </p>
+                <ol className="mb-2 ps-3">
+                  <li className="mb-1">
+                    Copy the token above
+                  </li>
+                  <li className="mb-1">
+                    In Odoo, go to <strong>Position Integration → Import from API</strong>
+                  </li>
+                  <li className="mb-1">
+                    Paste the token in the <strong>API Token</strong> field
+                  </li>
+                  <li>
+                    Click <strong>Import</strong>
+                  </li>
+                </ol>
+                <p className="mb-1">
+                  <strong>Direct API usage:</strong>
+                </p>
+                <code className="d-block mb-1">
+                  GET {API_URL}/api/external/aggregations
+                </code>
+                <p className="mb-1">
+                  Send as <code>Authorization: Bearer &lt;token&gt;</code> or
+                  <code>?token=&lt;token&gt;</code>
+                </p>
               </div>
             </div>
           )}
