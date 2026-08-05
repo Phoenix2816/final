@@ -30,7 +30,7 @@ services:
       - ./odoo_addons:/mnt/extra-addons:ro
       - ./odoo/odoo.conf:/etc/odoo/odoo.conf:ro
       - odoo_web_data:/var/lib/odoo
-    command: ["-i", "base,odoo_position_integration"]
+    command: []
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
