@@ -126,6 +126,7 @@ class OdooPositionImportWizard(models.TransientModel):
             "level": pos_data.get("level", ""),
             "short_description": pos_data.get("shortDescription", ""),
             "visibility": pos_data.get("visibility", ""),
+            "required_technologies": ", ".join(pos_data.get("requiredTechnologies") or pos_data.get("projectTags") or []),
             "source_position_id": source_id,
             "api_token": self.api_token,
             "candidate_count": stats.get("candidateCount", 0),

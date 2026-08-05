@@ -11,6 +11,7 @@ class Position(models.Model):
     level = fields.Char(string="Level")
     short_description = fields.Text(string="Short Description")
     visibility = fields.Char(string="Visibility")
+    required_technologies = fields.Text(string="Required Technologies")
     source_position_id = fields.Integer(string="Source Position ID")
     api_token = fields.Char(string="API Token", required=True)
     candidate_count = fields.Integer(string="Candidate Count", default=0)

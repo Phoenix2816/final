@@ -161,6 +161,7 @@ async function computeAggregatedResults(positionId) {
       level: position.level,
       shortDescription: position.shortDescription,
       visibility: position.visibility,
+      requiredTechnologies: position.projectTags || [],
     },
     stats: {
       candidateCount: candidateIds.length,

@@ -52,13 +52,14 @@
                         </h1>
                     </div>
                     <group>
-                        <group>
-                            <field name="company"/>
-                            <field name="level"/>
-                            <field name="visibility"/>
-                            <field name="source_position_id"/>
-                            <field name="generated_at"/>
-                        </group>
+                    <group>
+                        <field name="company"/>
+                        <field name="level"/>
+                        <field name="visibility"/>
+                        <field name="required_technologies"/>
+                        <field name="source_position_id"/>
+                        <field name="generated_at"/>
+                    </group>
                         <group>
                             <field name="candidate_count"/>
                             <field name="cv_count"/>
