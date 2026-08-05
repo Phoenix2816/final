@@ -16,8 +16,10 @@ lines.append(f"db_sslmode = {os.environ.get('DB_SSLMODE', 'prefer')}")
 db_name = os.environ.get('DB_NAME')
 if db_name:
     lines.append(f"db_name = {db_name}")
+    lines.append(f"dbfilter = ^{db_name}$")
 else:
     lines.append("# db_name = odoo")
+    lines.append("# dbfilter = ^odoo$")
 
 lines.append("addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons")
 lines.append("http_port = 8069")
@@ -31,6 +33,6 @@ with open(config_path, "w") as f:
     f.write(config)
 
 print(f"Config written to {config_path}")
-print("DB_NAME:", db_name or "(not set, database manager will be shown)")
+print("DB_NAME:", db_name or "(not set)")
 
 sys.exit(subprocess.call(["odoo", "-c", config_path]))
