@@ -35,4 +35,25 @@ with open(config_path, "w") as f:
 print(f"Config written to {config_path}")
 print("DB_NAME:", db_name or "(not set)")
 
+# If DB_NAME is set, try to initialize the database
+if db_name:
+    print(f"Attempting to initialize database '{db_name}'...")
+    try:
+        result = subprocess.run(
+            ["odoo", "-c", config_path, "-i", "base", "--stop-after-init", "--no-xmlrpc"],
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        if result.returncode == 0:
+            print(f"Database '{db_name}' initialized successfully")
+        else:
+            print(f"Init returned code {result.returncode}")
+            if result.stderr:
+                print("STDERR:", result.stderr[-500:])
+    except subprocess.TimeoutExpired:
+        print("Init timed out, continuing anyway...")
+    except Exception as e:
+        print(f"Init error: {e}, continuing anyway...")
+
 sys.exit(subprocess.call(["odoo", "-c", config_path]))
