@@ -16,7 +16,7 @@ lines.append(f"db_sslmode = {os.environ.get('DB_SSLMODE', 'prefer')}")
 db_name = os.environ.get('DB_NAME')
 if db_name:
     lines.append(f"db_name = {db_name}")
-    lines.append(f"dbfilter = ^{db_name}$")
+    lines.append(f"dbfilter = {os.environ.get('DBFILTER', '^' + db_name + '$')}")
 else:
     lines.append("# db_name = odoo")
     lines.append("# dbfilter = ^odoo$")
