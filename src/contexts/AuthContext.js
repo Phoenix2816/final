@@ -89,9 +89,9 @@ export function AuthProvider({ children }) {
   const hasRole = useCallback(
     (...roles) => {
       if (!user) return false;
-      const userRoles = user.roles || [];
+      const userRoles = (user.roles || []).map((r) => String(r).toLowerCase());
       if (userRoles.includes("admin")) return true;
-      return roles.some((r) => userRoles.includes(r));
+      return roles.some((r) => userRoles.includes(String(r).toLowerCase()));
     },
     [user]
   );
