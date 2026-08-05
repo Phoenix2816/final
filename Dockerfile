@@ -10,15 +10,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy custom module
 COPY odoo_addons/odoo_position_integration /mnt/extra-addons/odoo_position_integration
 
-# Copy Odoo config and entrypoint
-COPY odoo/odoo.conf /etc/odoo/odoo.conf
+# Copy Odoo config template and entrypoint
+COPY odoo/odoo.conf /etc/odoo/odoo.conf.template
 COPY entrypoint.py /entrypoint.py
 
 # Set permissions
 RUN chown -R odoo:odoo /mnt/extra-addons/odoo_position_integration /var/lib/odoo /entrypoint.py
 
-USER odoo
-
 EXPOSE 8069
 
-CMD ["python3", "/entrypoint.py"]
+# Run entrypoint as root to generate config, then switch to odoo user
+CMD ["sh", "-c", "python3 /entrypoint.py"]
