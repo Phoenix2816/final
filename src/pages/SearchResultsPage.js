@@ -13,29 +13,29 @@ export default function SearchResultsPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { q: routeQ } = useParams();
-  const q = routeQ || params.get("q") || "";
+  const q = (routeQ || params.get("q") || "").trim();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
+    setError(false);
+    setData(null);
     if (!q) {
       setData({ positions: [], cvs: [], users: [] });
       setLoading(false);
-      return;
+      return () => controller.abort();
     }
-    (async () => {
-      setLoading(true);
-      try {
-        const { data } = await api.get("/stats/search", { params: { q } });
-        setData(data);
-      } catch {
-        toast.error("Search failed");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [q]);
+    setLoading(true);
+    api.get('/stats/search', { params: { q }, signal: controller.signal })
+      .then(({ data }) => { if (!controller.signal.aborted) setData(data); })
+      .catch(() => { if (!controller.signal.aborted) setError(true); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [q, retry]);
 
   const toggleLike = async (cvId, wasLiked) => {
     try {
@@ -53,8 +53,7 @@ export default function SearchResultsPage() {
     }
   };
 
-  // Show the skeleton only on the very first load (no data yet) so live
-  // searches don't wipe the previous results while a new request is in flight.
+  // Each query owns its loading, results and error state.
   if (loading && !data) {
     return (
       <div className="page-shell">
@@ -81,7 +80,12 @@ export default function SearchResultsPage() {
         )}
       </div>
 
-      {!hasAny && (
+      {error && <div className="alert alert-danger" role="alert">
+        <p>{t('search.failed', { defaultValue: 'Search could not be loaded. Please try again.' })}</p>
+        <button type="button" className="btn btn-outline-danger" onClick={() => setRetry(value => value + 1)}>{t('search.retry', { defaultValue: 'Retry search' })}</button>
+      </div>}
+      {!q && <EmptyState icon="bi-search" title={t('search.start', { defaultValue: 'Start a search' })} hint={t('search.startHint', { defaultValue: 'Enter a name, skill or position in the search field.' })} />}
+      {q && !error && !hasAny && (
         <EmptyState icon="bi-search" title={t("search.empty")} hint={t("search.emptyHint")} />
       )}
 

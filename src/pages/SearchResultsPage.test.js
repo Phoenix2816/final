@@ -1,0 +1,40 @@
+import React from 'react';
+import { render, screen, act, fireEvent } from '@testing-library/react';
+import SearchResultsPage from './SearchResultsPage';
+import api from '../api/client';
+let mockQuery = 'first';
+jest.mock('react-router-dom', () => ({ useNavigate: () => jest.fn(), useParams: () => ({}), useSearchParams: () => [new URLSearchParams({ q: mockQuery })] }));
+jest.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key, options) => options?.defaultValue || key }) }));
+jest.mock('../api/client', () => ({ get: jest.fn() }));
+jest.mock('../components/common/DataTable', () => props => <div>{props.rows.map(row => <p key={row.id}>{row.title}</p>)}</div>);
+jest.mock('../components/common/HeartLike', () => () => null);
+jest.mock('../components/common/LoadingSkeleton', () => () => <p>Loading</p>);
+jest.mock('../components/common/EmptyState', () => props => <p>{props.title}</p>);
+let requests;
+beforeEach(() => { mockQuery = 'first'; requests = []; api.get.mockReset(); api.get.mockImplementation((url, options) => new Promise((resolve, reject) => requests.push({ resolve, reject, options }))); });
+const response = title => ({ data: { positions: [{ id: title, title }], cvs: [], users: [] } });
+test('older query results never replace the latest query', async () => {
+  const page = render(<SearchResultsPage />);
+  mockQuery = 'second'; page.rerender(<SearchResultsPage />);
+  await act(async () => requests[1].resolve(response('Second result')));
+  await act(async () => requests[0].resolve(response('First result')));
+  expect(screen.getByText('Second result')).toBeTruthy();
+  expect(screen.queryByText('First result')).toBeNull();
+  expect(requests[0].options.signal.aborted).toBe(true);
+});
+test('clearing a pending query keeps the empty search state', async () => {
+  const page = render(<SearchResultsPage />);
+  mockQuery = ''; page.rerender(<SearchResultsPage />);
+  await act(async () => requests[0].resolve(response('Obsolete result')));
+  expect(screen.getByText('Start a search')).toBeTruthy();
+  expect(screen.queryByText('Obsolete result')).toBeNull();
+});
+test('failure displays a retry and successful retry replaces the error', async () => {
+  render(<SearchResultsPage />);
+  await act(async () => requests[0].reject(new Error('offline')));
+  expect(screen.getByRole('alert')).toBeTruthy();
+  fireEvent.click(screen.getByText('Retry search'));
+  await act(async () => requests[1].resolve(response('Recovered result')));
+  expect(screen.getByText('Recovered result')).toBeTruthy();
+  expect(screen.queryByRole('alert')).toBeNull();
+});
