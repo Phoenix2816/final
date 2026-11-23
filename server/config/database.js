@@ -9,14 +9,15 @@ function createSequelize() {
   if (process.env.DB_URI) {
     return new Sequelize(process.env.DB_URI, {
       logging: false,
+      pool: { acquire: 15000 },
       dialectOptions: process.env.DB_SSL_CA
-        ? { ssl: { ca: fs.readFileSync(process.env.DB_SSL_CA) } }
-        : undefined,
+        ? { ssl: { ca: fs.readFileSync(process.env.DB_SSL_CA) }, connectTimeout: 10000 }
+        : { connectTimeout: 10000 },
     });
   }
 
   if (process.env.DB_HOST) {
-    const dialectOptions = {};
+    const dialectOptions = { connectTimeout: 10000 };
     if (process.env.DB_SSL_CA) {
       dialectOptions.ssl = { ca: fs.readFileSync(process.env.DB_SSL_CA) };
     }
@@ -28,6 +29,7 @@ function createSequelize() {
         host: process.env.DB_HOST,
         port: Number(process.env.DB_PORT || 3306),
         dialect: "mysql",
+        pool: { acquire: 15000 },
         logging: false,
         dialectOptions,
       }

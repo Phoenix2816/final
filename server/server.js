@@ -27,6 +27,7 @@ const aggregationRoutes = require("./routes/aggregations");
 
 const app = express();
 const server = http.createServer(app);
+let databaseReady = false;
 
 const CLIENT_URL = process.env.CLIENT_URL || process.env.REACT_APP_CLIENT_URL || "http://localhost:3000";
 const PORT = process.env.PORT || 5000;
@@ -49,7 +50,11 @@ app.get("/", (_req, res) => {
   res.json({ message: "CV Management API running", version: "1.0.0" });
 });
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.get("/api/health", (_req, res) => res.status(databaseReady ? 200 : 503).json({ ok: databaseReady, database: databaseReady ? "connected" : "unavailable", revision: process.env.RENDER_GIT_COMMIT || null }));
+app.use(["/api", "/auth"], (_req, res, next) => {
+  if (!databaseReady) return res.status(503).json({ error: "The database is temporarily unavailable. Please try again shortly." });
+  next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/auth", authRoutes); // compatibility with OAuth redirect URIs without /api
@@ -148,15 +153,16 @@ async function start() {
       await seed({ force: process.env.SEED_ON_START === "true" });
     }
 
-    server.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
+    databaseReady = true;
+    console.log("Database ready; application requests enabled.");
   } catch (err) {
-    console.error("Failed to start server:", err);
-    process.exit(1);
+    databaseReady = false;
+    console.error("Database initialization failed:", err.name, err.original?.code || err.code || "unknown");
+    setTimeout(start, 30000);
   }
 }
 
+server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 start();
 
 module.exports = { app, server };

@@ -4,6 +4,7 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,
+  timeout: 45000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -65,7 +66,7 @@ api.interceptors.response.use(
 
         const { data } = await axios.post(`${API_URL}/api/auth/refresh`, {
           refreshToken,
-        });
+        }, { timeout: 45000 });
 
         const newToken = data.token;
         const newRefreshToken = data.refreshToken;

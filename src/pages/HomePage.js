@@ -9,23 +9,24 @@ export default function HomePage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get("/stats/dashboard");
-        setData(res.data);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    const controller = new AbortController();
+    setLoading(true);
+    setError(false);
+    api.get("/stats/dashboard", { signal: controller.signal })
+      .then(res => { if (!controller.signal.aborted) setData(res.data); })
+      .catch(() => { if (!controller.signal.aborted) setError(true); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [attempt]);
 
   if (loading) {
-    return (
-      <div className="page-shell">
-        <LoadingSkeleton rows={6} height={72} />
-      </div>
-    );
+    return <div className="page-shell" aria-busy="true"><p role="status">{t("home.loading", { defaultValue: "Connecting to the server. This may take a moment." })}</p><LoadingSkeleton rows={6} height={72} /></div>;
+  }
+  if (error) {
+    return <div className="page-shell"><div className="alert alert-warning" role="alert"><h1 className="h4">{t("home.unavailable", { defaultValue: "The dashboard is temporarily unavailable" })}</h1><p>{t("home.loadError", { defaultValue: "We could not load the application data. Please try again shortly." })}</p><button className="btn btn-primary" onClick={() => setAttempt(value => value + 1)}>{t("home.retry", { defaultValue: "Try again" })}</button></div></div>;
   }
 
   const stats = data?.stats || {};
