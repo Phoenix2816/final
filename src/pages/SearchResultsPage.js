@@ -133,7 +133,7 @@ export default function SearchResultsPage() {
               },
               {
                 key: "tags",
-                label: t("positions.projectTags"),
+                label: t("positions.requiredTechnologies"),
                 render: (r) =>
                   (r.projectTags || []).length ? (
                     <div className="d-flex flex-wrap gap-1">
