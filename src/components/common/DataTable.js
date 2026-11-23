@@ -193,7 +193,7 @@ export default function DataTable({
         </table>
       </div>
 
-      <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+      {typeof onPageChange === "function" && <div className="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
         <div className="d-flex align-items-center gap-2">
           <span className="small text-muted">{t("common.rows")}</span>
           <Form.Select
@@ -210,7 +210,7 @@ export default function DataTable({
           </Form.Select>
           <span className="small text-muted">
             {(total || 0) > 0 ? `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)}` : 0}{" "}
-            {t("common.of")} {total || 0} {t("users.title").toLowerCase()}
+            {t("common.of")} {total || 0}
           </span>
         </div>
         <Pagination className="mb-0" aria-label="Table pagination">
@@ -222,7 +222,7 @@ export default function DataTable({
           ))}
           <Pagination.Next disabled={page >= totalPages} onClick={() => onPageChange?.(page + 1)} aria-label="Next page" />
         </Pagination>
-      </div>
+      </div>}
     </div>
   );
 }

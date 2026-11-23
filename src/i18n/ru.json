@@ -141,7 +141,6 @@
     "noAttributesHint": "Используйте «Добавить атрибут», чтобы указать профессиональные данные.",
     "categoryEmpty": "В категории {{category}} нет атрибутов",
     "categoryEmptyHint": "Используйте «Добавить атрибут», чтобы добавить {{category}}.",
-    "addAttribute": "Добавить атрибут",
     "categories": {
       "languages": "Языки",
       "technical": "Технические",
@@ -313,7 +312,8 @@
       "draft": "Черновик",
       "hidden": "Скрыто",
       "archived": "В архиве"
-    }
+    },
+    "statusLabel": "Статус"
   },
   "discussion": {
     "placeholder": "Сообщение в Markdown…",

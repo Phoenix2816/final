@@ -157,7 +157,6 @@
     "noAttributesHint": "Use \"Add Attribute\" to include professional details.",
     "categoryEmpty": "No {{category}} attributes added yet",
     "categoryEmptyHint": "Use \"Add Attribute\" to include {{category}} information.",
-    "addAttribute": "Add attribute",
     "categories": {
       "languages": "Languages",
       "technical": "Technical",
@@ -329,7 +328,8 @@
       "draft": "Draft",
       "hidden": "Hidden",
       "archived": "Archived"
-    }
+    },
+    "statusLabel": "Status"
   },
   "discussion": {
     "placeholder": "Write a message in Markdown…",

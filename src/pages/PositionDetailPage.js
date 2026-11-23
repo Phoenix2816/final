@@ -152,7 +152,7 @@ export default function PositionDetailPage() {
     },
     {
       key: "status",
-      label: t("cv.status"),
+      label: t("cv.statusLabel"),
       render: (r) => <span className={`status-pill status-${r.status}`}>{r.status}</span>,
     },
     {
